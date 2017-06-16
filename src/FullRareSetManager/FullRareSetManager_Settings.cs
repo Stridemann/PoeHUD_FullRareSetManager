@@ -12,7 +12,7 @@ namespace FullRareSetManager
     {
         public FullRareSetManager_Settings()
         {
-            Enable = false;
+            Enable = true;
             AllowIdentified = false;
             ShowOnlyWithInventory = false;
             HideWhenLeftPanelOpened = false;
@@ -26,7 +26,7 @@ namespace FullRareSetManager
         [Menu("Position Y")]
         public RangeNode<float> PositionY { get; set; }
 
-        //[Menu("Allow Identified Items")]
+        [Menu("Allow Identified Items")]
         public ToggleNode AllowIdentified { get; set; }
 
         [Menu("Show only with inventory")]

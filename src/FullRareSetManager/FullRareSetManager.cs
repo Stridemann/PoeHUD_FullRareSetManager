@@ -1,16 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PoeHUD.Plugins;
-using PoeHUD.Hud;
 using PoeHUD.Poe;
-using PoeHUD.Poe.Elements;
 using PoeHUD.Hud.UI;
-using Newtonsoft.Json;
 using PoeHUD.Poe.RemoteMemoryObjects;
-using PoeHUD.Poe.FilesInMemory;
 using PoeHUD.Models;
 using PoeHUD.Poe.Components;
 using SharpDX;
@@ -26,13 +19,11 @@ namespace FullRareSetManager
             UpdateItemsSetsInfo();
         }
 
-
         public override void OnClose()
         {
             if(SData != null)
                 StashData.Save(this, SData);
         }
-
 
         public override void Render()
         {
@@ -278,7 +269,7 @@ namespace FullRareSetManager
                 {
                     continue;
                 }
-                LogMessage("Process stash: " + stashName, 0);
+
                 CurrentOpenedStashTab = stash;
                 CurrentOpenedStashTabName = stashName;
 
@@ -289,8 +280,6 @@ namespace FullRareSetManager
                     curStashData = new StashTabData();
                     SData.StashTabs.Add(stashName, curStashData);
                 }
-
-                LogMessage("Items: " + stash.ItemCount, 0);
 
                 if (curStashData.ItemsCount != stash.ItemCount)
                 {
