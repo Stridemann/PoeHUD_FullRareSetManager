@@ -53,7 +53,7 @@ namespace FullRareSetManager
 
 
         private StashItem[] CurrentSetItems;
-        public override PrepareItemResult PrepareItemForSet()
+        public override PrepareItemResult PrepareItemForSet(FullRareSetManager_Settings settings)
         {
             if (HighLvlItems.Count >= 2)
             {
@@ -62,8 +62,8 @@ namespace FullRareSetManager
                     HighLvlItems[0],
                     HighLvlItems[1]
                 };
-
-                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count, LowSet = false };
+                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count, LowSet = false, bInPlayerInvent = inPlayerInvent };
             }
             else if (HighLvlItems.Count >= 1 && LowLvlItems.Count >= 1)
             {
@@ -72,8 +72,8 @@ namespace FullRareSetManager
                     HighLvlItems[0],
                     LowLvlItems[0]
                 };
-
-                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 1, LowSet = true };
+                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 1, LowSet = true, bInPlayerInvent = inPlayerInvent };
             }
             else if (LowLvlItems.Count >= 2)
             {
@@ -82,8 +82,8 @@ namespace FullRareSetManager
                     LowLvlItems[0],
                     LowLvlItems[1]
                 };
-                
-                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 2, LowSet = true };
+                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 2, LowSet = true, bInPlayerInvent = inPlayerInvent };
             }
             return new PrepareItemResult();//Code should never get here
         }

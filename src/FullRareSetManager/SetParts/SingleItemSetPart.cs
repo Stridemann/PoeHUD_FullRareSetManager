@@ -46,17 +46,17 @@ namespace FullRareSetManager
 
 
         private StashItem CurrentSetItem;
-        public override PrepareItemResult PrepareItemForSet()
+        public override PrepareItemResult PrepareItemForSet(FullRareSetManager_Settings settings)
         {
             if (HighLvlItems.Count > 0)
             {
                 CurrentSetItem = HighLvlItems[0];
-                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count, LowSet = false };
+                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count, LowSet = false, bInPlayerInvent = CurrentSetItem.bInPlayerInventory };
             }
             else if (LowLvlItems.Count > 0)
             {
                 CurrentSetItem = LowLvlItems[0];
-                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 1, LowSet = true };
+                return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 1, LowSet = true, bInPlayerInvent = CurrentSetItem.bInPlayerInventory };
             }
             return new PrepareItemResult();//Code should never get here
         }

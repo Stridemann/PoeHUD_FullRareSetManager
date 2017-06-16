@@ -68,6 +68,7 @@ namespace FullRareSetManager
         public bool bIdentified;
         public int InventPosX;
         public int InventPosY;
+        public bool bInPlayerInventory;
         //public int ItemQuality;//TODO: consider item quality in future
     }
 

@@ -29,12 +29,9 @@ namespace FullRareSetManager
         {
             bool needUpdate = UpdatePlayerInventory();
 
-            LogMessage("PI: " + needUpdate, 0);
-
             if (GameController.Game.IngameState.ServerData.StashPanel.IsVisible)
             {
                 needUpdate = UpdateStashes() || needUpdate;
-                LogMessage("St: " + needUpdate, 0);
             }
 
             if(needUpdate)
@@ -60,7 +57,7 @@ namespace FullRareSetManager
                 {
                     var StashTabRect = CurrentOpenedStashTab.InventoryRootElement.GetClientRect();
 
-                    var setItemsListRect = new RectangleF(StashTabRect.Right, StashTabRect.Bottom, 270, 220);
+                    var setItemsListRect = new RectangleF(StashTabRect.Right, StashTabRect.Bottom, 270, 240);
                     Graphics.DrawBox(setItemsListRect, new Color(0, 0, 0, 200));
                     Graphics.DrawFrame(setItemsListRect, 2, Color.White);
 
@@ -141,7 +138,6 @@ namespace FullRareSetManager
 
         private void UpdateItemsSetsInfo()
         {
-            LogMessage("Update info", 5);
             CurrentSetData = new CurrentSetInfo();
             ItemSetTypes = new BaseSetPart[8];
 
@@ -211,27 +207,26 @@ namespace FullRareSetManager
             DrawInfoString += "\r\n";
             DrawInfoString += "Regal sets ready: " + regalSetMaxCount;
 
-            int maxAvailableReplaceCount = 0;
-            int replaceIndex = -1;
-
-            bool isLowSet = false;
-            for (int i = 0; i < 8; i++)//Check that we have enough items for any set
-            {
-                var part = ItemSetTypes[i];
-                var prepareResult = part.PrepareItemForSet();
-
-                isLowSet = isLowSet || prepareResult.LowSet;
-
-                if (maxAvailableReplaceCount < prepareResult.AllowedReplacesCount)
-                {
-                    maxAvailableReplaceCount = prepareResult.AllowedReplacesCount;
-                    replaceIndex = i;
-                }
-            }
-
-
             if (chaosSets > 0 || regalSetMaxCount > 0)
             {
+                int maxAvailableReplaceCount = 0;
+                int replaceIndex = -1;
+
+                bool isLowSet = false;
+                for (int i = 0; i < 8; i++)//Check that we have enough items for any set
+                {
+                    var part = ItemSetTypes[i];
+                    var prepareResult = part.PrepareItemForSet(Settings);
+
+                    isLowSet = isLowSet || prepareResult.LowSet;
+
+                    if (maxAvailableReplaceCount < prepareResult.AllowedReplacesCount && !prepareResult.bInPlayerInvent)
+                    {
+                        maxAvailableReplaceCount = prepareResult.AllowedReplacesCount;
+                        replaceIndex = i;
+                    }
+                }
+
                 if (!isLowSet)
                 {
                     if (Settings.ShowRegalSets)
@@ -242,14 +237,22 @@ namespace FullRareSetManager
                     }
                     if (maxAvailableReplaceCount == 0)
                     {
-                        LogMessage("Something goes wrong (or not?): This is regal set + can't replace with any low iLvl items + allow chaos set", 5);
+                        LogMessage("You want to make a regal set anyway? Ok)", 5);
+                        CurrentSetData.bSetIsReady = true;
+                        CurrentSetData.SetType = 2;
                         return;
                     }
-                    else
+                    else if(replaceIndex != -1)
                     {
                         ItemSetTypes[replaceIndex].DoLowItemReplace();
                         CurrentSetData.SetType = 1;
                         CurrentSetData.bSetIsReady = true;
+                    }
+                    else
+                    {
+                        CurrentSetData.bSetIsReady = true;
+                        CurrentSetData.SetType = 2;
+                        return;
                     }
                 }
                 else
@@ -276,10 +279,13 @@ namespace FullRareSetManager
                 string stashName = invPanel.getStashName(i);
                 stashNames.Add(stashName);
 
+           
                 if (stash == null || stash.VisibleInventoryItems == null)
                 {
                     continue;
                 }
+
+                var visibleInventoryItems = stash.VisibleInventoryItems;
 
                 CurrentOpenedStashTab = stash;
                 CurrentOpenedStashTabName = stashName;
@@ -293,11 +299,13 @@ namespace FullRareSetManager
                     add = true;
                 }
 
+                if (stash.ItemCount != visibleInventoryItems.Count) continue;
+
                 if (curStashData.ItemsCount != stash.ItemCount)
                 {
                     curStashData.StashTabItems = new List<StashItem>();
                     needUpdateAllInfo = true;
-                    foreach (var invItem in stash.VisibleInventoryItems)
+                    foreach (var invItem in visibleInventoryItems)
                     {
                         var item = invItem.Item;
                         var newStashItem = ProcessItem(item, curStashData);
@@ -356,10 +364,12 @@ namespace FullRareSetManager
                     {
                         newAddedItem.InventPosX = invItem.InventPosX;
                         newAddedItem.InventPosY = invItem.InventPosY;
+                        newAddedItem.bInPlayerInventory = true;
                     }
                 }
+                SData.PlayerInventory.ItemsCount = (int)inventory.ItemCount;
             }
-            SData.PlayerInventory.ItemsCount = (int)inventory.ItemCount;
+          
             return true;
         }
 
@@ -393,7 +403,7 @@ namespace FullRareSetManager
             {
                 newItem.ItemType = StashItemType.TwoHanded;
             }
-            else if (className.StartsWith("One Hand"))
+            else if (className.StartsWith("One Hand") || className.StartsWith("Thrusting One Hand"))
             {
                 newItem.ItemType = StashItemType.OneHanded;
             }
@@ -429,6 +439,8 @@ namespace FullRareSetManager
                 data.StashTabItems.Add(newItem);
                 return newItem;
             }
+
+            LogMessage("Ignore item: " + className, 10);
             return null;
         }
 

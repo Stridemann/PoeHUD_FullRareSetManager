@@ -19,6 +19,7 @@ namespace FullRareSetManager
             ShowRegalSets = false;
             PositionX = new RangeNode<float>(0.0f, 0.0f, 2000.0f);
             PositionY = new RangeNode<float>(365.0f, 0.0f, 2000.0f);
+            WeaponTypePriority = new RangeNode<int>(0, 0, 1);
         }
 
         [Menu("Position X")]
@@ -36,5 +37,8 @@ namespace FullRareSetManager
         public ToggleNode HideWhenLeftPanelOpened { get; set; }
         [Menu("Show Regal sets")]
         public ToggleNode ShowRegalSets { get; set; }
+
+        [Menu("WeaponPreparePriority: TwoHand<->OneHand")]
+        public RangeNode<int> WeaponTypePriority { get; set; }
     }
 }

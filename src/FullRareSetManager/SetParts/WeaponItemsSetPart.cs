@@ -78,7 +78,80 @@ namespace FullRareSetManager
 
 
         private StashItem[] CurrentSetItems;
-        public override PrepareItemResult PrepareItemForSet()
+        public override PrepareItemResult PrepareItemForSet(FullRareSetManager_Settings settings)
+        {
+            bool oneHandedFirst = settings.WeaponTypePriority == 1;
+
+            if (!oneHandedFirst)
+            {
+                if (OneHanded_HighLvlItems.Count > 0 && OneHanded_HighLvlItems[0].bInPlayerInventory)
+                    oneHandedFirst = true;
+                else if (OneHanded_LowLvlItems.Count > 0 && OneHanded_LowLvlItems[0].bInPlayerInventory)
+                    oneHandedFirst = true;
+            }
+
+
+            Func<PrepareItemResult>[] invokeList = new Func<PrepareItemResult>[5];
+
+
+            if(oneHandedFirst)
+            {
+                invokeList[0] = Prepahe_OH;
+                invokeList[1] = Prepahe_TH;
+                invokeList[2] = Prepahe_OHOL;
+                invokeList[3] = Prepahe_OL;
+                invokeList[4] = Prepahe_TL;
+            }
+            else
+            {
+                invokeList[0] = Prepahe_TH;
+                invokeList[1] = Prepahe_OH;
+                invokeList[2] = Prepahe_OHOL;
+                invokeList[3] = Prepahe_TL;
+                invokeList[4] = Prepahe_OL;
+            }
+
+            for (int i = 0; i < invokeList.Length; i++)
+            {
+                var result = invokeList[i]();
+
+                if (result != null)
+                    return result;
+            }
+
+
+
+
+
+
+
+            /*
+            var result = Prepahe_TH();//Two handed high
+
+            if (result == null)
+            {
+                result = Prepahe_OH();//One handed high
+
+                if (result == null)
+                {
+                    result = Prepahe_OHOL();//One handed high + low
+
+                    if (result == null)
+                    {
+                        result = Prepahe_TL();//Two handed low
+
+                        if (result == null)
+                        {
+                            result = Prepahe_OL();//One handed low
+                        }
+                    }
+                }
+            }
+            */
+            return null;
+        }
+
+        private PrepareItemResult Prepahe_TH()
         {
             if (TwoHanded_HighLvlItems.Count >= 1)
             {
@@ -87,21 +160,29 @@ namespace FullRareSetManager
                     TwoHanded_HighLvlItems[0]
                 };
 
-                var replCount = LowSetsCount();
-                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = false };
+                return new PrepareItemResult() { AllowedReplacesCount = LowSetsCount(), LowSet = false, bInPlayerInvent = CurrentSetItems[0].bInPlayerInventory };
             }
-            else if (OneHanded_HighLvlItems.Count >= 2)
+            return null;
+        }
+
+        private PrepareItemResult Prepahe_OH()
+        {
+            if (OneHanded_HighLvlItems.Count >= 2)
             {
                 CurrentSetItems = new StashItem[]
                 {
                     OneHanded_HighLvlItems[0],
                     OneHanded_HighLvlItems[1]
                 };
-
-                var replCount = LowSetsCount();
-                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = false };
+                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+                return new PrepareItemResult() { AllowedReplacesCount = LowSetsCount(), LowSet = false, bInPlayerInvent = inPlayerInvent };
             }
-            else if (OneHanded_HighLvlItems.Count >= 1 && OneHanded_LowLvlItems.Count >= 1)
+            return null;
+        }
+
+        private PrepareItemResult Prepahe_OHOL()
+        {
+            if (OneHanded_HighLvlItems.Count >= 1 && OneHanded_LowLvlItems.Count >= 1)
             {
                 CurrentSetItems = new StashItem[]
                 {
@@ -123,10 +204,15 @@ namespace FullRareSetManager
 
                 replCount += oneHandedCount;
 
-                
-                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = true };
+                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = true, bInPlayerInvent = inPlayerInvent };
             }
-            else if (TwoHanded_LowLvlItems.Count >= 1)
+            return null;
+        }
+
+        private PrepareItemResult Prepahe_TL()
+        {
+            if (TwoHanded_LowLvlItems.Count >= 1)
             {
                 CurrentSetItems = new StashItem[]
                 {
@@ -134,9 +220,13 @@ namespace FullRareSetManager
                 };
 
                 var replCount = LowSetsCount() - 1;
-                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = true };
+                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = true, bInPlayerInvent = CurrentSetItems[0].bInPlayerInventory };
             }
-            else if (OneHanded_LowLvlItems.Count >= 2)
+            return null;
+        }
+        private PrepareItemResult Prepahe_OL()
+        {
+            if (OneHanded_LowLvlItems.Count >= 2)
             {
                 CurrentSetItems = new StashItem[]
                 {
@@ -145,10 +235,10 @@ namespace FullRareSetManager
                 };
 
                 var replCount = LowSetsCount() - 2;
-                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = true };
+                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+                return new PrepareItemResult() { AllowedReplacesCount = replCount, LowSet = true, bInPlayerInvent = inPlayerInvent };
             }
-
-            return new PrepareItemResult();//Code should never get here
+            return null;
         }
 
         public override void DoLowItemReplace()
