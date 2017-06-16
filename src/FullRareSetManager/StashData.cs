@@ -54,7 +54,7 @@ namespace FullRareSetManager
 
     public class StashTabData
     {
-        public int ItemsCount => StashTabItems.Count;
+        public int ItemsCount;
         public List<StashItem> StashTabItems = new List<StashItem>();
     }
 

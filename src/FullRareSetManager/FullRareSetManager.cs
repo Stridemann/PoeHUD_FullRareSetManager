@@ -29,9 +29,12 @@ namespace FullRareSetManager
         {
             bool needUpdate = UpdatePlayerInventory();
 
+            LogMessage("PI: " + needUpdate, 0);
+
             if (GameController.Game.IngameState.ServerData.StashPanel.IsVisible)
             {
                 needUpdate = UpdateStashes() || needUpdate;
+                LogMessage("St: " + needUpdate, 0);
             }
 
             if(needUpdate)
@@ -53,16 +56,22 @@ namespace FullRareSetManager
 
             if (leftPanelOpened)
             {
-                if (bFullSetDrawPrepared && CurrentOpenedStashTab != null)
+                if (CurrentSetData.bSetIsReady && CurrentOpenedStashTab != null)
                 {
                     var StashTabRect = CurrentOpenedStashTab.InventoryRootElement.GetClientRect();
 
-                    var setItemsListRect = new RectangleF(StashTabRect.Right, StashTabRect.Bottom, 270, 200);
+                    var setItemsListRect = new RectangleF(StashTabRect.Right, StashTabRect.Bottom, 270, 220);
                     Graphics.DrawBox(setItemsListRect, new Color(0, 0, 0, 200));
                     Graphics.DrawFrame(setItemsListRect, 2, Color.White);
 
                     float drawPosX = setItemsListRect.X + 10;
                     float drawPosY = setItemsListRect.Y + 10;
+
+                    //
+
+                    Graphics.DrawText("Current " + (CurrentSetData.SetType == 1 ? "Chaos" : "Regal") + " set:", 15, new Vector2(drawPosX, drawPosY));
+
+                    drawPosY += 25;
 
                     for (int i = 0; i < 8; i++)//Check that we have enough items for any set
                     {
@@ -128,11 +137,12 @@ namespace FullRareSetManager
 
         private BaseSetPart[] ItemSetTypes;
         private string DrawInfoString = "";
-        private bool bFullSetDrawPrepared = false;
+        private CurrentSetInfo CurrentSetData;
 
         private void UpdateItemsSetsInfo()
         {
-            bFullSetDrawPrepared = false;
+            LogMessage("Update info", 5);
+            CurrentSetData = new CurrentSetInfo();
             ItemSetTypes = new BaseSetPart[8];
 
             ItemSetTypes[0] = new WeaponItemsSetPart("Weapons");
@@ -219,7 +229,6 @@ namespace FullRareSetManager
                 }
             }
 
-            bFullSetDrawPrepared = false;
 
             if (chaosSets > 0 || regalSetMaxCount > 0)
             {
@@ -227,7 +236,8 @@ namespace FullRareSetManager
                 {
                     if (Settings.ShowRegalSets)
                     {
-                        bFullSetDrawPrepared = true;
+                        CurrentSetData.bSetIsReady = true;
+                        CurrentSetData.SetType = 2;
                         return;
                     }
                     if (maxAvailableReplaceCount == 0)
@@ -238,12 +248,13 @@ namespace FullRareSetManager
                     else
                     {
                         ItemSetTypes[replaceIndex].DoLowItemReplace();
-                        bFullSetDrawPrepared = true;
+                        CurrentSetData.SetType = 1;
+                        CurrentSetData.bSetIsReady = true;
                     }
                 }
                 else
                 {
-                    bFullSetDrawPrepared = true;
+                    CurrentSetData.bSetIsReady = true;
                 }
             }
         }
@@ -275,16 +286,17 @@ namespace FullRareSetManager
 
                 StashTabData curStashData = null;
 
+                bool add = false;
                 if (!SData.StashTabs.TryGetValue(stashName, out curStashData))
                 {
                     curStashData = new StashTabData();
-                    SData.StashTabs.Add(stashName, curStashData);
+                    add = true;
                 }
 
                 if (curStashData.ItemsCount != stash.ItemCount)
                 {
                     curStashData.StashTabItems = new List<StashItem>();
-
+                    needUpdateAllInfo = true;
                     foreach (var invItem in stash.VisibleInventoryItems)
                     {
                         var item = invItem.Item;
@@ -297,20 +309,24 @@ namespace FullRareSetManager
                             newStashItem.InventPosY = invItem.InventPosY;
                         }
                     }
-                    
-                    needUpdateAllInfo = true;
+                    curStashData.ItemsCount = (int)stash.ItemCount;
+                }
+
+                if(add && curStashData.ItemsCount > 0)
+                {
+                    SData.StashTabs.Add(stashName, curStashData);
                 }
             }
 
 
             if (needUpdateAllInfo)
             {
-                foreach (var name in stashNames)
+                foreach (var name in stashNames)//Delete stashes that doesn't exist
                 {
                     if (!SData.StashTabs.ContainsKey(name))
                         SData.StashTabs.Remove(name);
                 }
-                needUpdateAllInfo = false;
+
                 return true;
             }
             return false;
@@ -343,6 +359,7 @@ namespace FullRareSetManager
                     }
                 }
             }
+            SData.PlayerInventory.ItemsCount = (int)inventory.ItemCount;
             return true;
         }
 
@@ -415,6 +432,11 @@ namespace FullRareSetManager
             return null;
         }
 
+        private struct CurrentSetInfo
+        {
+            public bool bSetIsReady;
+            public int SetType; // 1 - chaos set, 2 - regal set
+        }
         /*Rare set classes:
 
         Two Hand Sword
