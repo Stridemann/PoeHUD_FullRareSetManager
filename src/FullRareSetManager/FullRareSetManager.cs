@@ -71,6 +71,7 @@ namespace FullRareSetManager
 
             if (!bDropAllItems)
             {
+                bDropAllItems = false;
                 try
                 {
                     DrawSetsInfo();
