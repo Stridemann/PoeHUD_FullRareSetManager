@@ -57,32 +57,55 @@ namespace FullRareSetManager
         {
             if (HighLvlItems.Count >= 2)
             {
+                var inPlayerInvent = HighLvlItems[0].bInPlayerInventory || HighLvlItems[1].bInPlayerInventory;
+
+                if(!inPlayerInvent)
+                    HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
+
                 CurrentSetItems = new StashItem[]
                 {
                     HighLvlItems[0],
                     HighLvlItems[1]
                 };
-                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+               
                 return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count, LowSet = false, bInPlayerInvent = inPlayerInvent };
             }
             else if (HighLvlItems.Count >= 1 && LowLvlItems.Count >= 1)
             {
+                var inPlayerInvent = HighLvlItems[0].bInPlayerInventory;
+
+                if (!inPlayerInvent)
+                {
+                    HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
+                    inPlayerInvent = LowLvlItems[1].bInPlayerInventory;
+
+                    if (!inPlayerInvent)
+                        HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+                }
+
                 CurrentSetItems = new StashItem[]
                 {
                     HighLvlItems[0],
                     LowLvlItems[0]
                 };
-                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+              
                 return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 1, LowSet = true, bInPlayerInvent = inPlayerInvent };
             }
             else if (LowLvlItems.Count >= 2)
             {
+                var inPlayerInvent = LowLvlItems[0].bInPlayerInventory || LowLvlItems[1].bInPlayerInventory;
+
+                if (!inPlayerInvent)
+                    LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
                 CurrentSetItems = new StashItem[]
                 {
                     LowLvlItems[0],
                     LowLvlItems[1]
                 };
-                var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
+           
                 return new PrepareItemResult() { AllowedReplacesCount = LowLvlItems.Count - 2, LowSet = true, bInPlayerInvent = inPlayerInvent };
             }
             return new PrepareItemResult();//Code should never get here
@@ -92,6 +115,8 @@ namespace FullRareSetManager
         {
             if (HighLvlItems.Count >= 1 && LowLvlItems.Count >= 1)
             {
+                LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+                HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
                 CurrentSetItems = new StashItem[]
                 {
                     HighLvlItems[0],
@@ -100,6 +125,7 @@ namespace FullRareSetManager
             }
             else if (LowLvlItems.Count >= 2)
             {
+                LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
                 CurrentSetItems = new StashItem[]
                 {
                     LowLvlItems[0],
@@ -115,6 +141,24 @@ namespace FullRareSetManager
         public override StashItem[] GetPreparedItems()
         {
             return CurrentSetItems;
+        }
+
+        public override void RemovePreparedItems()
+        {
+            RemoveItem(CurrentSetItems[0]);
+            RemoveItem(CurrentSetItems[1]);
+        }
+
+        private void RemoveItem(StashItem item)
+        {
+            if (item.LowLvl)
+            {
+                LowLvlItems.Remove(item);
+            }
+            else
+            {
+                HighLvlItems.Remove(item);
+            }
         }
     }
 }

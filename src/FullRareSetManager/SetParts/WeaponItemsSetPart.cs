@@ -119,35 +119,6 @@ namespace FullRareSetManager
                     return result;
             }
 
-
-
-
-
-
-
-            /*
-            var result = Prepahe_TH();//Two handed high
-
-            if (result == null)
-            {
-                result = Prepahe_OH();//One handed high
-
-                if (result == null)
-                {
-                    result = Prepahe_OHOL();//One handed high + low
-
-                    if (result == null)
-                    {
-                        result = Prepahe_TL();//Two handed low
-
-                        if (result == null)
-                        {
-                            result = Prepahe_OL();//One handed low
-                        }
-                    }
-                }
-            }
-            */
             return null;
         }
 
@@ -155,6 +126,9 @@ namespace FullRareSetManager
         {
             if (TwoHanded_HighLvlItems.Count >= 1)
             {
+                if (!TwoHanded_HighLvlItems[0].bInPlayerInventory)
+                    TwoHanded_HighLvlItems = TwoHanded_HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
                 CurrentSetItems = new StashItem[]
                 {
                     TwoHanded_HighLvlItems[0]
@@ -169,7 +143,17 @@ namespace FullRareSetManager
         {
             if (OneHanded_HighLvlItems.Count >= 2)
             {
-                CurrentSetItems = new StashItem[]
+                if (!OneHanded_HighLvlItems[0].bInPlayerInventory && !OneHanded_HighLvlItems[1].bInPlayerInventory)
+                    OneHanded_HighLvlItems = OneHanded_HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+                else if (OneHanded_HighLvlItems[0].bInPlayerInventory && !OneHanded_HighLvlItems[1].bInPlayerInventory)
+                {
+                    var first = OneHanded_HighLvlItems[0];
+                    OneHanded_HighLvlItems = OneHanded_HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+                    OneHanded_HighLvlItems.Remove(first);
+                    OneHanded_HighLvlItems.Insert(0, first);
+                }
+
+                    CurrentSetItems = new StashItem[]
                 {
                     OneHanded_HighLvlItems[0],
                     OneHanded_HighLvlItems[1]
@@ -184,10 +168,16 @@ namespace FullRareSetManager
         {
             if (OneHanded_HighLvlItems.Count >= 1 && OneHanded_LowLvlItems.Count >= 1)
             {
+                if (!OneHanded_HighLvlItems[0].bInPlayerInventory)
+                    OneHanded_HighLvlItems = OneHanded_HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
+                if (!OneHanded_LowLvlItems[0].bInPlayerInventory)
+                    OneHanded_LowLvlItems = OneHanded_LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
                 CurrentSetItems = new StashItem[]
                 {
                     OneHanded_HighLvlItems[0],
-                    OneHanded_LowLvlItems[1]
+                    OneHanded_LowLvlItems[0]
                 };
 
                 int replCount = TwoHanded_LowLvlItems.Count;
@@ -214,6 +204,9 @@ namespace FullRareSetManager
         {
             if (TwoHanded_LowLvlItems.Count >= 1)
             {
+                if (!TwoHanded_LowLvlItems[0].bInPlayerInventory)
+                    TwoHanded_LowLvlItems = TwoHanded_LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
                 CurrentSetItems = new StashItem[]
                 {
                     TwoHanded_LowLvlItems[0]
@@ -228,6 +221,10 @@ namespace FullRareSetManager
         {
             if (OneHanded_LowLvlItems.Count >= 2)
             {
+                if (!OneHanded_LowLvlItems[0].bInPlayerInventory && !OneHanded_LowLvlItems[1].bInPlayerInventory)
+                    OneHanded_LowLvlItems = OneHanded_LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
+
                 CurrentSetItems = new StashItem[]
                 {
                     OneHanded_LowLvlItems[0],
@@ -245,6 +242,7 @@ namespace FullRareSetManager
         {
             if (TwoHanded_LowLvlItems.Count >= 1)
             {
+                TwoHanded_LowLvlItems = TwoHanded_LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
                 CurrentSetItems = new StashItem[]
                 {
                     TwoHanded_LowLvlItems[0]
@@ -252,6 +250,9 @@ namespace FullRareSetManager
             }
             else if (OneHanded_HighLvlItems.Count >= 1 && OneHanded_LowLvlItems.Count >= 1)
             {
+                OneHanded_LowLvlItems = OneHanded_LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+                OneHanded_HighLvlItems = OneHanded_HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
+
                 CurrentSetItems = new StashItem[]
                 {
                     OneHanded_HighLvlItems[0],
@@ -260,6 +261,7 @@ namespace FullRareSetManager
             }
             else if (OneHanded_LowLvlItems.Count >= 2)
             {
+                OneHanded_LowLvlItems = OneHanded_LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
                 CurrentSetItems = new StashItem[]
                 {
                     OneHanded_LowLvlItems[0],
@@ -275,6 +277,26 @@ namespace FullRareSetManager
         public override StashItem[] GetPreparedItems()
         {
             return CurrentSetItems;
+        }
+
+        public override void RemovePreparedItems()
+        {
+            RemoveItem(CurrentSetItems[0]);
+            RemoveItem(CurrentSetItems[1]);
+        }
+
+        private void RemoveItem(StashItem item)
+        {
+            if (item.LowLvl)
+            {
+                TwoHanded_LowLvlItems.Remove(item);
+                OneHanded_LowLvlItems.Remove(item);
+            }
+            else
+            {
+                TwoHanded_HighLvlItems.Remove(item);
+                OneHanded_HighLvlItems.Remove(item);
+            }
         }
     }
 }

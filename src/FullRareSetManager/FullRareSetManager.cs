@@ -7,15 +7,20 @@ using PoeHUD.Poe.RemoteMemoryObjects;
 using PoeHUD.Models;
 using PoeHUD.Poe.Components;
 using SharpDX;
+using PoeHUD.Framework;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace FullRareSetManager
 {
     public class FullRareSetManager : BaseSettingsPlugin<FullRareSetManager_Settings>
     {
         private StashData SData;
+        private DropAllToInventory InventDrop;
         public override void Initialise()
         {
             SData = StashData.Load(this);
+            InventDrop = new DropAllToInventory(this);
             UpdateItemsSetsInfo();
         }
 
@@ -28,8 +33,9 @@ namespace FullRareSetManager
         public override void Render()
         {
             bool needUpdate = UpdatePlayerInventory();
-
-            if (GameController.Game.IngameState.ServerData.StashPanel.IsVisible)
+            var ingameState = GameController.Game.IngameState;
+            var stashIsVisible = ingameState.ServerData.StashPanel.IsVisible;
+            if (stashIsVisible)
             {
                 needUpdate = UpdateStashes() || needUpdate;
             }
@@ -37,8 +43,92 @@ namespace FullRareSetManager
             if(needUpdate)
                 UpdateItemsSetsInfo();
 
-            DrawSetsInfo();
+
+            var viewAllTabsButton = ingameState.UIRoot.Children[1].Children[21].Children[2]
+                    .Children[0]
+                    .Children[1].Children[2];
+
+            //Graphics.DrawFrame(viewAllTabsButton.GetClientRect(), 2, Color.Red);
+
+
+            if (bDropAllItems)
+            {
+                bDropAllItems = false;
+                DropNextItem();
+            }
+
+
+            if (WinApi.IsKeyDown(Settings.DropToInventoryKey))
+            {
+                if(stashIsVisible && ingameState.IngameUi.InventoryPanel.IsVisible)
+                {
+                    if (CurrentSetData.bSetIsReady)
+                    {
+                        bDropAllItems = true;
+                    }
+                }
+            }
+
+            if (!bDropAllItems)
+            {
+                try
+                {
+                    DrawSetsInfo();
+                }
+                catch
+                {
+                    LogError("There was an error while moving items.", 5);
+                }
+                finally
+                {
+                    UpdatePlayerInventory();
+                    UpdateItemsSetsInfo();
+                }
+            }
         }
+
+        private bool bDropAllItems = false;
+
+        public void DropNextItem()
+        {
+            var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+            var stashNames = stashPanel.getAllStashName();
+            int currentTab = -1;
+
+            for (int i = 0; i < 8; i++)//Check that we have enough items for any set
+            {
+                var part = ItemSetTypes[i];
+                var items = part.GetPreparedItems();
+
+                for (int j = 0; j < items.Length; j++)
+                {
+                    var curPreparedItem = items[j];
+                    if (curPreparedItem.bInPlayerInventory) continue;
+                    var invIndex = stashNames.IndexOf(curPreparedItem.StashName);
+                  
+                    if (currentTab != invIndex)
+                    {
+                        currentTab = invIndex;
+                        CurrentOpenedStashTab = InventDrop.GoToTab(invIndex);
+                    }
+                    
+                    var foundItem = CurrentOpenedStashTab.VisibleInventoryItems.Find(x => x.InventPosX == curPreparedItem.InventPosX && x.InventPosY == curPreparedItem.InventPosY);
+
+                    if (foundItem != null)
+                    {
+                        Utils.VirtualKeyboard.KeyDown(Keys.LControlKey);
+                        Utils.MouseUtils.LeftMouseClick(foundItem.GetClientRect().Center);
+                        Utils.VirtualKeyboard.KeyUp(Keys.LControlKey);
+                        Thread.Sleep(100);
+                    }
+                    UpdateStashes();
+                }
+                part.RemovePreparedItems();
+            }
+            UpdatePlayerInventory();
+            UpdateItemsSetsInfo();
+        }
+            
 
 
 
@@ -251,13 +341,14 @@ namespace FullRareSetManager
                     else
                     {
                         CurrentSetData.bSetIsReady = true;
-                        CurrentSetData.SetType = 2;
+                        CurrentSetData.SetType = 1;
                         return;
                     }
                 }
                 else
                 {
                     CurrentSetData.bSetIsReady = true;
+                    CurrentSetData.SetType = 1;
                 }
             }
         }
@@ -266,17 +357,18 @@ namespace FullRareSetManager
 
         private bool UpdateStashes()
         {
-            var invPanel = GameController.Game.IngameState.ServerData.StashPanel;
+            var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
             List<string> stashNames = new List<string>();
             bool needUpdateAllInfo = false;
             CurrentOpenedStashTab = null;
             CurrentOpenedStashTabName = "";
 
 
-            for (int i = 0; i < invPanel.TotalStashes; i++)
+            for (int i = 0; i < stashPanel.TotalStashes; i++)
             {
-                Inventory stash = invPanel.getStashInventory(i);
-                string stashName = invPanel.getStashName(i);
+                Inventory stash = stashPanel.getStashInventory(i);
+
+                string stashName = stashPanel.getStashName(i);
                 stashNames.Add(stashName);
 
            

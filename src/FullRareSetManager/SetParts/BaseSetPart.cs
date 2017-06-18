@@ -22,6 +22,7 @@ namespace FullRareSetManager
         public abstract PrepareItemResult PrepareItemForSet(FullRareSetManager_Settings settings);
         public abstract void DoLowItemReplace();
         public abstract StashItem[] GetPreparedItems();
+        public abstract void RemovePreparedItems();
     }
 
     public class PrepareItemResult

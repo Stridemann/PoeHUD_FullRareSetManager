@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PoeHUD.Hud.Settings;
 using PoeHUD.Plugins;
+using System.Windows.Forms;
 
 namespace FullRareSetManager
 {
@@ -20,6 +21,7 @@ namespace FullRareSetManager
             PositionX = new RangeNode<float>(0.0f, 0.0f, 2000.0f);
             PositionY = new RangeNode<float>(365.0f, 0.0f, 2000.0f);
             WeaponTypePriority = new RangeNode<int>(0, 0, 1);
+            DropToInventoryKey = Keys.F5;
         }
 
         [Menu("Position X")]
@@ -40,5 +42,8 @@ namespace FullRareSetManager
 
         [Menu("WeaponPreparePriority: TwoHand<->OneHand")]
         public RangeNode<int> WeaponTypePriority { get; set; }
+
+        [Menu("Drop To Inventory Key")]
+        public HotkeyNode DropToInventoryKey { get; set; }
     }
 }
