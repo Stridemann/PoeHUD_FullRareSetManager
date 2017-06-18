@@ -54,7 +54,19 @@ namespace FullRareSetManager
             if (bDropAllItems)
             {
                 bDropAllItems = false;
-                DropNextItem();
+                try
+                {
+                    DropAllItems();
+                }
+                catch
+                {
+                    LogError("There was an error while moving items.", 5);
+                }
+                finally
+                {
+                    UpdatePlayerInventory();
+                    UpdateItemsSetsInfo();
+                }
             }
 
 
@@ -71,26 +83,14 @@ namespace FullRareSetManager
 
             if (!bDropAllItems)
             {
-                bDropAllItems = false;
-                try
-                {
-                    DrawSetsInfo();
-                }
-                catch
-                {
-                    LogError("There was an error while moving items.", 5);
-                }
-                finally
-                {
-                    UpdatePlayerInventory();
-                    UpdateItemsSetsInfo();
-                }
+                DrawSetsInfo();
+             
             }
         }
 
         private bool bDropAllItems = false;
 
-        public void DropNextItem()
+        public void DropAllItems()
         {
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
             var stashNames = stashPanel.getAllStashName();
