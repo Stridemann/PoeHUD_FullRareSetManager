@@ -282,7 +282,9 @@ namespace FullRareSetManager
         public override void RemovePreparedItems()
         {
             RemoveItem(CurrentSetItems[0]);
-            RemoveItem(CurrentSetItems[1]);
+
+            if(CurrentSetItems.Length > 1)
+                RemoveItem(CurrentSetItems[1]);
         }
 
         private void RemoveItem(StashItem item)
