@@ -40,8 +40,11 @@ namespace FullRareSetManager
                 needUpdate = UpdateStashes() || needUpdate;
             }
 
-            if(needUpdate)
+            if (needUpdate)
+            {
+                //Thread.Sleep(100);//Wait until item be placed to player invent. There should be some delay
                 UpdateItemsSetsInfo();
+            }
 
 
             var viewAllTabsButton = ingameState.UIRoot.Children[1].Children[21].Children[2]
@@ -329,7 +332,7 @@ namespace FullRareSetManager
                     }
                     if (maxAvailableReplaceCount == 0)
                     {
-                        LogMessage("You want to make a regal set anyway? Ok)", 5);
+                        LogMessage("You want to make a regal set anyway? Ok.", 2);
                         CurrentSetData.bSetIsReady = true;
                         CurrentSetData.SetType = 2;
                         return;
@@ -533,8 +536,7 @@ namespace FullRareSetManager
                 data.StashTabItems.Add(newItem);
                 return newItem;
             }
-
-            LogMessage("Ignore item: " + className, 10);
+            
             return null;
         }
 
