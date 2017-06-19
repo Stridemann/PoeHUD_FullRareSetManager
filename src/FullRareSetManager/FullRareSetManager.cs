@@ -95,6 +95,7 @@ namespace FullRareSetManager
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
             var stashNames = stashPanel.AllStashNames;
             int currentTab = -1;
+            var gameWindowPos = GameController.Window.GetWindowRectangle();
 
             for (int i = 0; i < 8; i++)//Check that we have enough items for any set
             {
@@ -118,7 +119,7 @@ namespace FullRareSetManager
                     if (foundItem != null)
                     {
                         Utils.VirtualKeyboard.KeyDown(Keys.LControlKey);
-                        Utils.MouseUtils.LeftMouseClick(foundItem.GetClientRect().Center);
+                        Utils.MouseUtils.LeftMouseClick(foundItem.GetClientRect().Center + gameWindowPos.TopLeft);
                         Utils.VirtualKeyboard.KeyUp(Keys.LControlKey);
                         Thread.Sleep(100);
                     }
