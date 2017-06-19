@@ -67,7 +67,7 @@ namespace FullRareSetManager
             }
             catch (Exception e)
             {
-                BasePlugin.LogError($"Error in GoToTab: {e}", 5);
+                BasePlugin.LogError($"Error in GoToTab: {e.Message}", 5);
             }
 
             Inventory stash = null;
@@ -77,7 +77,7 @@ namespace FullRareSetManager
             do
             {
                 Thread.Sleep(50);
-                stash = stashPanel.getStashInventory(tabIndex);
+                stash = stashPanel.GetStashInventoryByIndex(tabIndex);
                 if (++counter > 100) break;
             }
             while (stash == null || stash.VisibleInventoryItems == null);

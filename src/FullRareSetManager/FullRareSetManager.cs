@@ -93,7 +93,7 @@ namespace FullRareSetManager
         public void DropAllItems()
         {
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
-            var stashNames = stashPanel.getAllStashName();
+            var stashNames = stashPanel.AllStashNames;
             int currentTab = -1;
 
             for (int i = 0; i < 8; i++)//Check that we have enough items for any set
@@ -367,9 +367,9 @@ namespace FullRareSetManager
 
             for (int i = 0; i < stashPanel.TotalStashes; i++)
             {
-                Inventory stash = stashPanel.getStashInventory(i);
+                Inventory stash = stashPanel.GetStashInventoryByIndex(i);
 
-                string stashName = stashPanel.getStashName(i);
+                string stashName = stashPanel.GetStashName(i);
                 stashNames.Add(stashName);
 
            
