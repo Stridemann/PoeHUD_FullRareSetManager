@@ -34,10 +34,12 @@ namespace FullRareSetManager
                 return null;
             }
 
+            var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+
             try
             {
-
-                var gameWindowPos = GameController.Window.GetWindowRectangle();
+                /*
+               
                 // Obs, this method only works with 31 stashtabs on 1920x1080, since you have to scroll at 32 tabs, and the frame stays in place.
                 var openLeftPanel = GameController.Game.IngameState.IngameUi.OpenLeftPanel;
                 var viewAllTabsButton = GameController.Game.IngameState.UIRoot.Children[1].Children[21].Children[2]
@@ -47,21 +49,40 @@ namespace FullRareSetManager
 
                 var parent = openLeftPanel.Children[2].Children[0].Children[1].Children[3];
                 var element = parent.Children[2];
+                */
 
-                if (!element.IsVisible)
+            
+
+                var viewAllTabsButton = stashPanel.ViewAllStashButton;
+
+                var openLeftPanel = GameController.Game.IngameState.IngameUi.OpenLeftPanel;
+                var parent = openLeftPanel.Children[2].Children[0].Children[1].Children[3];
+                var dropDownTabElements = parent.Children[2];
+
+                var totalStashes = stashPanel.TotalStashes;
+                if (totalStashes > 30)
+                {
+                    // If the number of stashes is greater than 30, then parent.Children[1] becomes the ScrollBar
+                    // and the DropDownElements becomes parent.Children[2]
+                    dropDownTabElements = parent.Children[1];
+                }
+
+                var gameWindowPos = GameController.Window.GetWindowRectangle();
+
+                if (!dropDownTabElements.IsVisible)
                 {
                     var pos = viewAllTabsButton.GetClientRect();
                     MouseUtils.LeftMouseClick(pos.Center + gameWindowPos.TopLeft);
 
                     int brCounter = 0;
-                    while (!element.IsVisible)
+                    while (!dropDownTabElements.IsVisible)
                     {
                         Thread.Sleep(50);
                         if (++brCounter > 30) break;
                     }
                 }
 
-                var tabPos = element.Children[tabIndex].GetClientRect();
+                var tabPos = dropDownTabElements.Children[tabIndex].GetClientRect();
 
                 MouseUtils.LeftMouseClick(tabPos.Center + gameWindowPos.TopLeft);
             }
@@ -71,7 +92,7 @@ namespace FullRareSetManager
             }
 
             Inventory stash = null;
-            var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+       
 
             int counter = 0;
             do

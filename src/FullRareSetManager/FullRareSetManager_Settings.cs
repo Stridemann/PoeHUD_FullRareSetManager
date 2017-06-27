@@ -13,7 +13,7 @@ namespace FullRareSetManager
     {
         public FullRareSetManager_Settings()
         {
-            Enable = true;
+            Enable = false;
             AllowIdentified = false;
             ShowOnlyWithInventory = false;
             HideWhenLeftPanelOpened = false;
