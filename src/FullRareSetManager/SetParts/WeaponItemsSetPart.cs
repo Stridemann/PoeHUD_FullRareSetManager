@@ -89,7 +89,13 @@ namespace FullRareSetManager
                 else if (OneHanded_LowLvlItems.Count > 0 && OneHanded_LowLvlItems[0].bInPlayerInventory)
                     oneHandedFirst = true;
             }
-
+            else
+            {
+                if (TwoHanded_HighLvlItems.Count > 0 && TwoHanded_HighLvlItems[0].bInPlayerInventory)
+                    oneHandedFirst = false;
+                else if (TwoHanded_LowLvlItems.Count > 0 && TwoHanded_LowLvlItems[0].bInPlayerInventory)
+                    oneHandedFirst = false;
+            }
 
             Func<PrepareItemResult>[] invokeList = new Func<PrepareItemResult>[5];
 

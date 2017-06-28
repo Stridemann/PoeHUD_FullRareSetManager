@@ -38,21 +38,6 @@ namespace FullRareSetManager
 
             try
             {
-                /*
-               
-                // Obs, this method only works with 31 stashtabs on 1920x1080, since you have to scroll at 32 tabs, and the frame stays in place.
-                var openLeftPanel = GameController.Game.IngameState.IngameUi.OpenLeftPanel;
-                var viewAllTabsButton = GameController.Game.IngameState.UIRoot.Children[1].Children[21].Children[2]
-                    .Children[0]
-                    .Children[1].Children[2];
-
-
-                var parent = openLeftPanel.Children[2].Children[0].Children[1].Children[3];
-                var element = parent.Children[2];
-                */
-
-            
-
                 var viewAllTabsButton = stashPanel.ViewAllStashButton;
 
                 var openLeftPanel = GameController.Game.IngameState.IngameUi.OpenLeftPanel;
