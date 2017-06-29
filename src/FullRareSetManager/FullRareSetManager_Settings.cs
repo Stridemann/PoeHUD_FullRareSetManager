@@ -23,8 +23,9 @@ namespace FullRareSetManager
             PositionY = new RangeNode<float>(365.0f, 0.0f, 2000.0f);
             WeaponTypePriority = new RangeNode<int>(0, 0, 1);
             DropToInventoryKey = Keys.F5;
-            EnableBorders = false;
 
+            EnableBorders = false;
+            InventBorders = false;
             BorderWidth = new RangeNode<int>(5, 1, 15);
             BorderAutoResize = false;
             BorderOversize = new RangeNode<int>(5, 0, 15);
@@ -56,8 +57,11 @@ namespace FullRareSetManager
         public HotkeyNode DropToInventoryKey { get; set; }
 
 
-        [Menu("Item Lable borders", 0)]
+        [Menu("Items Lables Borders", 0)]
         public ToggleNode EnableBorders { get; set; }
+
+        [Menu("Inventory Borders")]
+        public ToggleNode InventBorders { get; set; }
 
         [Menu("Borders Width", 1, 0)]
         public RangeNode<int> BorderWidth { get; set; }

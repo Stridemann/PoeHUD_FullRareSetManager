@@ -14,6 +14,7 @@ using System.Linq;
 using PoeHUD.Poe.Elements;
 using PoeHUD.Controllers;
 using PoeHUD.Models.Interfaces;
+using PoeHUD.Models.Enums;
 
 namespace FullRareSetManager
 {
@@ -66,6 +67,49 @@ namespace FullRareSetManager
             {
                 currentLabels = GameController.Game.IngameState.IngameUi.ItemsOnGroundLabels
                     .GroupBy(y => y.ItemOnGround.Address).ToDictionary(y => y.Key, y => y.First());
+            }
+
+            if (!Settings.InventBorders.Value) return;
+            if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible) return;
+
+            var playerInv = GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory];
+            var visibleInventoryItems = playerInv.VisibleInventoryItems;
+            if (visibleInventoryItems == null) return;
+
+            foreach(var item in visibleInventoryItems)
+            {
+                var item1 = item.Item;
+                if (item1 == null) continue;
+
+                BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item1.Path);
+                var visitResult = GetStashItemTypeByClassName(bit.ClassName);
+
+                if (visitResult != StashItemType.Undefined)
+                {
+                    int index = (int)visitResult;
+
+                    if (index > 7)
+                        index = 0;
+
+                    var data = DisplayData[index];
+                    var rect = item.GetClientRect();
+
+                    Color borderColor = Color.Lerp(Color.Red, Color.Green, data.PriorityScale);
+
+                    rect.X += 2;
+                    rect.Y += 2;
+
+                    rect.Width -= 4;
+                    rect.Height -= 4;
+
+                    var testRect = new RectangleF(rect.X + 3, rect.Y + 3, 40, 20);
+
+                    Graphics.DrawBox(testRect, new Color(10, 10, 10, 230));
+                    Graphics.DrawFrame(rect, 2, borderColor);
+
+                    Graphics.DrawText(data.PriorityPercent + "%", Settings.TextSize.Value, testRect.TopLeft, Color.White);
+                }
+
             }
         }
 
@@ -145,18 +189,19 @@ namespace FullRareSetManager
             {
                 Entity item = entity.GetComponent<WorldItem>().ItemEntity;
 
-                var visitResult = ProcessItem(item);
+                BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
+                var visitResult = GetStashItemTypeByClassName(bit.ClassName);
 
-                if(visitResult != null)
+                if(visitResult != StashItemType.Undefined)
                 {
-                    int index = (int)visitResult.ItemType;
+                    int index = (int)visitResult;
 
                     if (index > 7)
                         index = 0;
 
-                    var setPart = DisplayData[index];
+                    var displData = DisplayData[index];
 
-                    currentAlerts.Add(entity, setPart);
+                    currentAlerts.Add(entity, displData);
                 }
                
             }
@@ -464,7 +509,7 @@ namespace FullRareSetManager
             {
                 var drawInfo = DisplayData[i];
                 drawInfo.PriorityScale = (float)drawInfo.TotalCount / maxItemsCount;// - drawInfo.TotalCount
-                drawInfo.PriorityPercent = (int)(drawInfo.PriorityScale * 100);
+                drawInfo.PriorityPercent = (int)((1 - drawInfo.PriorityScale) * 100);
             }
 
             DrawInfoString += "\r\n";
@@ -650,7 +695,7 @@ namespace FullRareSetManager
 
             var mods = item.GetComponent<Mods>();
 
-            if (mods.ItemRarity != PoeHUD.Models.Enums.ItemRarity.Rare) return null;
+            if (mods.ItemRarity != ItemRarity.Rare) return null;
 
             var bIdentified = mods.Identified;
             if (bIdentified && !Settings.AllowIdentified) return null;
@@ -665,45 +710,10 @@ namespace FullRareSetManager
 
             BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
 
-            var className = bit.ClassName;
-
-            newItem.ItemClass = className;
+            newItem.ItemClass = bit.ClassName;
             newItem.ItemName = bit.BaseName;
 
-            if (className.StartsWith("Two Hand"))
-            {
-                newItem.ItemType = StashItemType.TwoHanded;
-            }
-            else if (className.StartsWith("One Hand") || className.StartsWith("Thrusting One Hand"))
-            {
-                newItem.ItemType = StashItemType.OneHanded;
-            }
-            else
-            {
-                switch (className)
-                {
-                    case "Bow": newItem.ItemType = StashItemType.TwoHanded; break;
-                    case "Staff": newItem.ItemType = StashItemType.TwoHanded; break;
-                    case "Sceptre": newItem.ItemType = StashItemType.OneHanded; break;
-                    case "Wand": newItem.ItemType = StashItemType.OneHanded; break;
-                    case "Dagger": newItem.ItemType = StashItemType.OneHanded; break;
-                    case "Claw": newItem.ItemType = StashItemType.OneHanded; break;
-                    case "Shield": newItem.ItemType = StashItemType.OneHanded; break;
-
-                    case "Ring": newItem.ItemType = StashItemType.Ring; break;
-                    case "Amulet": newItem.ItemType = StashItemType.Amulet; break;
-                    case "Belt": newItem.ItemType = StashItemType.Belt; break;
-
-                    case "Helmet": newItem.ItemType = StashItemType.Helmet; break;
-                    case "Body Armour": newItem.ItemType = StashItemType.Body; break;
-                    case "Boots": newItem.ItemType = StashItemType.Boots; break;
-                    case "Gloves": newItem.ItemType = StashItemType.Gloves; break;
-
-                    default:
-                        newItem.ItemType = StashItemType.Undefined;
-                        break;
-                }
-            }
+            newItem.ItemType = GetStashItemTypeByClassName(newItem.ItemClass);
 
             if (newItem.ItemType != StashItemType.Undefined)
             {
@@ -712,6 +722,46 @@ namespace FullRareSetManager
             
             return null;
         }
+
+        private StashItemType GetStashItemTypeByClassName(string className)
+        {
+            if (className.StartsWith("Two Hand"))
+            {
+                return StashItemType.TwoHanded;
+            }
+            else if (className.StartsWith("One Hand") || className.StartsWith("Thrusting One Hand"))
+            {
+                return StashItemType.OneHanded;
+            }
+            else
+            {
+                switch (className)
+                {
+                    case "Bow": return StashItemType.TwoHanded;
+                    case "Staff": return StashItemType.TwoHanded;
+                    case "Sceptre": return StashItemType.OneHanded;
+                    case "Wand": return StashItemType.OneHanded;
+                    case "Dagger": return StashItemType.OneHanded;
+                    case "Claw": return StashItemType.OneHanded;
+                    case "Shield": return StashItemType.OneHanded;
+
+                    case "Ring": return StashItemType.Ring;
+                    case "Amulet": return StashItemType.Amulet;
+                    case "Belt": return StashItemType.Belt;
+
+                    case "Helmet": return StashItemType.Helmet;
+                    case "Body Armour": return StashItemType.Body;
+                    case "Boots": return StashItemType.Boots;
+                    case "Gloves": return StashItemType.Gloves;
+
+                    default:
+                        return StashItemType.Undefined;
+                       
+                }
+            }
+        }
+
+
 
         private struct CurrentSetInfo
         {
