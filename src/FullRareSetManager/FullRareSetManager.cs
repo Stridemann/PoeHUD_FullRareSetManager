@@ -43,6 +43,7 @@ namespace FullRareSetManager
             currentAlerts.Clear();
         }
         public ItemDisplayData[] DisplayData;
+
         #region Draw labels
 
         private readonly Dictionary<EntityWrapper, ItemDisplayData> currentAlerts = new Dictionary<EntityWrapper, ItemDisplayData>();
@@ -215,8 +216,6 @@ namespace FullRareSetManager
 
         #endregion
 
-
-
         public override void OnClose()
         {
             if(SData != null)
@@ -328,9 +327,6 @@ namespace FullRareSetManager
             UpdateItemsSetsInfo();
         }
             
-
-
-
         private Inventory CurrentOpenedStashTab;
         private string CurrentOpenedStashTabName;
 
@@ -344,54 +340,54 @@ namespace FullRareSetManager
             {
                 if (CurrentSetData.bSetIsReady && CurrentOpenedStashTab != null)
                 {
-                    var StashTabRect = CurrentOpenedStashTab.InventoryRootElement.GetClientRect();
+                    var visibleInventoryItems = CurrentOpenedStashTab.VisibleInventoryItems;
 
-                    var setItemsListRect = new RectangleF(StashTabRect.Right, StashTabRect.Bottom, 270, 240);
-                    Graphics.DrawBox(setItemsListRect, new Color(0, 0, 0, 200));
-                    Graphics.DrawFrame(setItemsListRect, 2, Color.White);
-
-                    float drawPosX = setItemsListRect.X + 10;
-                    float drawPosY = setItemsListRect.Y + 10;
-
-                    //
-
-                    Graphics.DrawText("Current " + (CurrentSetData.SetType == 1 ? "Chaos" : "Regal") + " set:", 15, new Vector2(drawPosX, drawPosY));
-
-                    drawPosY += 25;
-
-                    for (int i = 0; i < 8; i++)//Check that we have enough items for any set
+                    if (visibleInventoryItems != null)
                     {
-                        var part = ItemSetTypes[i];
-                        var items = part.GetPreparedItems();
+                        var StashTabRect = CurrentOpenedStashTab.InventoryRootElement.GetClientRect();
 
-                        for (int j = 0; j < items.Length; j++)
+                        var setItemsListRect = new RectangleF(StashTabRect.Right, StashTabRect.Bottom, 270, 240);
+                        Graphics.DrawBox(setItemsListRect, new Color(0, 0, 0, 200));
+                        Graphics.DrawFrame(setItemsListRect, 2, Color.White);
+
+                        float drawPosX = setItemsListRect.X + 10;
+                        float drawPosY = setItemsListRect.Y + 10;
+
+                        Graphics.DrawText("Current " + (CurrentSetData.SetType == 1 ? "Chaos" : "Regal") + " set:", 15, new Vector2(drawPosX, drawPosY));
+
+                        drawPosY += 25;
+
+                        for (int i = 0; i < 8; i++)
                         {
-                            var curPreparedItem = items[j];
+                            var part = ItemSetTypes[i];
+                            var items = part.GetPreparedItems();
 
-                            bool inInventory = SData.PlayerInventory.StashTabItems.Contains(curPreparedItem);
-                            bool curStashOpened = curPreparedItem.StashName == CurrentOpenedStashTabName;
-                            var color = Color.Gray;
-
-                            if(inInventory)
-                                color = Color.Green;
-                            else if(curStashOpened)
-                                color = Color.Yellow;
-
-                            if (!inInventory && curStashOpened)
+                            for (int j = 0; j < items.Length; j++)
                             {
-                                var foundItem = CurrentOpenedStashTab.VisibleInventoryItems.Find(x => x.InventPosX == curPreparedItem.InventPosX && x.InventPosY == curPreparedItem.InventPosY);
+                                var curPreparedItem = items[j];
 
-                                if (foundItem != null)
+                                bool inInventory = SData.PlayerInventory.StashTabItems.Contains(curPreparedItem);
+                                bool curStashOpened = curPreparedItem.StashName == CurrentOpenedStashTabName;
+                                var color = Color.Gray;
+
+                                if (inInventory)
+                                    color = Color.Green;
+                                else if (curStashOpened)
+                                    color = Color.Yellow;
+
+                                if (!inInventory && curStashOpened)
                                 {
-                                    Graphics.DrawFrame(foundItem.GetClientRect(), 2, Color.Yellow);
+                                    var foundItem = visibleInventoryItems.Find(x => x.InventPosX == curPreparedItem.InventPosX && x.InventPosY == curPreparedItem.InventPosY);
+
+                                    if (foundItem != null)
+                                        Graphics.DrawFrame(foundItem.GetClientRect(), 2, Color.Yellow);
                                 }
+
+                                Graphics.DrawText(curPreparedItem.StashName + " (" + curPreparedItem.ItemName + ") " + (curPreparedItem.LowLvl ? "L" : "H"), 15, new Vector2(drawPosX, drawPosY), color);
+                                drawPosY += 20;
                             }
 
-                            Graphics.DrawText(curPreparedItem.StashName + " (" + curPreparedItem.ItemName + ") " + (curPreparedItem.LowLvl ? "L" : "H"), 15, new Vector2(drawPosX, drawPosY), color);
-                            drawPosY += 20;
                         }
-
-                     
                     }
                 }
             }

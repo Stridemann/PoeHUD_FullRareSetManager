@@ -103,17 +103,17 @@ namespace FullRareSetManager
             if(oneHandedFirst)
             {
                 invokeList[0] = Prepahe_OH;
-                invokeList[1] = Prepahe_TH;
-                invokeList[2] = Prepahe_OHOL;
-                invokeList[3] = Prepahe_OL;
+                invokeList[1] = Prepahe_OHOL;
+                invokeList[2] = Prepahe_OL;
+                invokeList[3] = Prepahe_TH;
                 invokeList[4] = Prepahe_TL;
             }
             else
             {
                 invokeList[0] = Prepahe_TH;
-                invokeList[1] = Prepahe_OH;
+                invokeList[1] = Prepahe_TL;
                 invokeList[2] = Prepahe_OHOL;
-                invokeList[3] = Prepahe_TL;
+                invokeList[3] = Prepahe_OH;
                 invokeList[4] = Prepahe_OL;
             }
 
@@ -154,16 +154,17 @@ namespace FullRareSetManager
                 else if (OneHanded_HighLvlItems[0].bInPlayerInventory && !OneHanded_HighLvlItems[1].bInPlayerInventory)
                 {
                     var first = OneHanded_HighLvlItems[0];
-                    OneHanded_HighLvlItems = OneHanded_HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
                     OneHanded_HighLvlItems.Remove(first);
+                    OneHanded_HighLvlItems = OneHanded_HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
                     OneHanded_HighLvlItems.Insert(0, first);
                 }
 
-                    CurrentSetItems = new StashItem[]
+                CurrentSetItems = new StashItem[]
                 {
                     OneHanded_HighLvlItems[0],
                     OneHanded_HighLvlItems[1]
                 };
+
                 var inPlayerInvent = CurrentSetItems[0].bInPlayerInventory || CurrentSetItems[1].bInPlayerInventory;
                 return new PrepareItemResult() { AllowedReplacesCount = LowSetsCount(), LowSet = false, bInPlayerInvent = inPlayerInvent };
             }
