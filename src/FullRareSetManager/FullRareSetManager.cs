@@ -76,23 +76,22 @@ namespace FullRareSetManager
             var visibleInventoryItems = playerInv.VisibleInventoryItems;
             if (visibleInventoryItems == null) return;
 
-            foreach(var item in visibleInventoryItems)
+            foreach(var inventItem in visibleInventoryItems)
             {
-                var item1 = item.Item;
-                if (item1 == null) continue;
+                var item = inventItem.Item;
+                if (item == null) continue;
+                
+                var visitResult = ProcessItem(item);
 
-                BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item1.Path);
-                var visitResult = GetStashItemTypeByClassName(bit.ClassName);
-
-                if (visitResult != StashItemType.Undefined)
+                if (visitResult != null)
                 {
-                    int index = (int)visitResult;
+                    int index = (int)visitResult.ItemType;
 
                     if (index > 7)
                         index = 0;
 
                     var data = DisplayData[index];
-                    var rect = item.GetClientRect();
+                    var rect = inventItem.GetClientRect();
 
                     Color borderColor = Color.Lerp(Color.Red, Color.Green, data.PriorityScale);
 
@@ -189,12 +188,11 @@ namespace FullRareSetManager
             {
                 Entity item = entity.GetComponent<WorldItem>().ItemEntity;
 
-                BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
-                var visitResult = GetStashItemTypeByClassName(bit.ClassName);
+                var visitResult = ProcessItem(item);
 
-                if(visitResult != StashItemType.Undefined)
+                if (visitResult != null)
                 {
-                    int index = (int)visitResult;
+                    int index = (int)visitResult.ItemType;
 
                     if (index > 7)
                         index = 0;
