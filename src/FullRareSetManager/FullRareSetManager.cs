@@ -10,6 +10,10 @@ using SharpDX;
 using PoeHUD.Framework;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
+using PoeHUD.Poe.Elements;
+using PoeHUD.Controllers;
+using PoeHUD.Models.Interfaces;
 
 namespace FullRareSetManager
 {
@@ -21,8 +25,154 @@ namespace FullRareSetManager
         {
             SData = StashData.Load(this);
             InventDrop = new DropAllToInventory(this);
+
+            DisplayData = new ItemDisplayData[8];
+
+            for (int i = 0; i <= 7; i++)
+                DisplayData[i] = new ItemDisplayData();
+
             UpdateItemsSetsInfo();
+
+            GameController.Area.OnAreaChange += OnAreaChange;
         }
+
+        private void OnAreaChange(AreaController area)
+        {
+            currentLabels.Clear();
+            currentAlerts.Clear();
+        }
+        public ItemDisplayData[] DisplayData;
+        #region Draw labels
+
+        private readonly Dictionary<EntityWrapper, ItemDisplayData> currentAlerts = new Dictionary<EntityWrapper, ItemDisplayData>();
+        private Dictionary<long, ItemsOnGroundLabelElement> currentLabels = new Dictionary<long, ItemsOnGroundLabelElement>();
+
+        private void RenderLabels()
+        {
+            if (!Settings.EnableBorders.Value) return;
+            bool shouldUpdate = false;
+
+            Dictionary<EntityWrapper, ItemDisplayData> tempCopy = new Dictionary<EntityWrapper, ItemDisplayData>(currentAlerts);
+            var keyValuePairs = tempCopy.AsParallel().Where(x => x.Key != null && x.Key.Address != 0 && x.Key.IsValid).ToList();
+            foreach (var kv in keyValuePairs)
+            {
+                if (DrawBorder(kv.Key.Address, kv.Value) && !shouldUpdate)
+                {
+                    shouldUpdate = true;
+                }
+            }
+
+            if (shouldUpdate)
+            {
+                currentLabels = GameController.Game.IngameState.IngameUi.ItemsOnGroundLabels
+                    .GroupBy(y => y.ItemOnGround.Address).ToDictionary(y => y.Key, y => y.First());
+            }
+        }
+
+
+        private bool DrawBorder(long entityAddress, ItemDisplayData data)
+        {
+            IngameUIElements ui = GameController.Game.IngameState.IngameUi;
+            ItemsOnGroundLabelElement entityLabel;
+            bool shouldUpdate = false;
+            if (currentLabels.TryGetValue(entityAddress, out entityLabel))
+            {
+                if (entityLabel.IsVisible)
+                {
+                    RectangleF rect = entityLabel.Label.GetClientRect();
+                    if ((ui.OpenLeftPanel.IsVisible && ui.OpenLeftPanel.GetClientRect().Intersects(rect)) ||
+                        (ui.OpenRightPanel.IsVisible && ui.OpenRightPanel.GetClientRect().Intersects(rect)))
+                    {
+                        return false;
+                    }
+                    int incrSize = Settings.BorderOversize.Value;
+
+                    if (Settings.BorderAutoResize.Value)
+                        incrSize = (int)Lerp(incrSize, 1, data.PriorityScale);
+
+                    rect.X -= incrSize;
+                    rect.Y -= incrSize;
+
+                    rect.Width += incrSize * 2;
+                    rect.Height += incrSize * 2;
+
+                    Color borderColor = Color.Lerp(Color.Red, Color.Green, data.PriorityScale);
+
+
+                    var borderWidth = Settings.BorderWidth.Value;
+
+                    if (Settings.BorderAutoResize.Value)
+                        borderWidth = (int)Lerp(borderWidth, 1, data.PriorityScale);
+
+                    Graphics.DrawFrame(rect, borderWidth, borderColor);
+
+                    if (Settings.TextSize.Value != 0)
+                    {
+                        if (Settings.TextOffsetX < 0)
+                            rect.X += Settings.TextOffsetX;
+                        else
+                            rect.X += rect.Width * (Settings.TextOffsetX.Value / 10);
+
+                        if (Settings.TextOffsetY < 0)
+                            rect.Y += Settings.TextOffsetY;
+                        else
+                            rect.Y += rect.Height * (Settings.TextOffsetY.Value / 10);
+
+                        Graphics.DrawText(data.PriorityPercent + "%", Settings.TextSize.Value, rect.TopLeft, Color.White);
+                    }
+                }
+            }
+            else
+            {
+                shouldUpdate = true;
+            }
+            return shouldUpdate;
+        }
+
+
+        private float Lerp(float a, float b, float f)
+        {
+            return a + f * (b - a);
+        }
+
+
+        public override void EntityAdded(EntityWrapper entity)
+        {
+            if (!Settings.EnableBorders.Value) return;
+
+            if (Settings.Enable && entity != null && !GameController.Area.CurrentArea.IsTown
+                && !currentAlerts.ContainsKey(entity) && entity.HasComponent<WorldItem>())
+            {
+                Entity item = entity.GetComponent<WorldItem>().ItemEntity;
+
+                var visitResult = ProcessItem(item);
+
+                if(visitResult != null)
+                {
+                    int index = (int)visitResult.ItemType;
+
+                    if (index > 7)
+                        index = 0;
+
+                    var setPart = DisplayData[index];
+
+                    currentAlerts.Add(entity, setPart);
+                }
+               
+            }
+        }
+
+        public override void EntityRemoved(EntityWrapper entity)
+        {
+            if (!Settings.EnableBorders.Value) return;
+
+            currentAlerts.Remove(entity);
+            currentLabels.Remove(entity.Address);
+        }
+
+        #endregion
+
+
 
         public override void OnClose()
         {
@@ -87,8 +237,9 @@ namespace FullRareSetManager
             if (!bDropAllItems)
             {
                 DrawSetsInfo();
-             
             }
+
+            RenderLabels();
         }
 
         private bool bDropAllItems = false;
@@ -235,7 +386,6 @@ namespace FullRareSetManager
         {
             CurrentSetData = new CurrentSetInfo();
             ItemSetTypes = new BaseSetPart[8];
-
             ItemSetTypes[0] = new WeaponItemsSetPart("Weapons");
             ItemSetTypes[1] = new SingleItemSetPart("Helmets");
             ItemSetTypes[2] = new SingleItemSetPart("Body Armors");
@@ -244,6 +394,9 @@ namespace FullRareSetManager
             ItemSetTypes[5] = new SingleItemSetPart("Belts");
             ItemSetTypes[6] = new SingleItemSetPart("Amulets");
             ItemSetTypes[7] = new RingItemsSetPart("Rings");
+
+            for (int i = 0; i <= 7; i++)
+                DisplayData[i].BaseData = ItemSetTypes[i];
 
             foreach (var item in SData.PlayerInventory.StashTabItems)
             {
@@ -276,8 +429,10 @@ namespace FullRareSetManager
 
             int regalSetMaxCount = int.MaxValue;
             int minItemsCount = int.MaxValue;
+            int maxItemsCount = 0;
+            int totalAllItemsCount = 0;
 
-            for (int i = 0; i < 8; i++)//Check that we have enough items for any set
+            for (int i = 0; i <= 7; i++)//Check that we have enough items for any set
             {
                 var part = ItemSetTypes[i];
 
@@ -285,15 +440,33 @@ namespace FullRareSetManager
                 var high = part.HighSetsCount();
                 var total = part.TotalSetsCount();
 
+                totalAllItemsCount += total;
+
                 if (minItemsCount > total)
                     minItemsCount = total;
+
+                if (maxItemsCount < total)
+                    maxItemsCount = total;
 
                 if (regalSetMaxCount > high)
                     regalSetMaxCount = high;
 
                 chaosSetMaxCount += low;
                 DrawInfoString += part.GetInfoString() + "\r\n";
+
+                var drawInfo = DisplayData[i];
+                drawInfo.TotalCount = total;
+                drawInfo.TotalLowCount = low;
+                drawInfo.TotalHighCount = high;
             }
+
+            for (int i = 0; i <= 7; i++)
+            {
+                var drawInfo = DisplayData[i];
+                drawInfo.PriorityScale = (float)drawInfo.TotalCount / maxItemsCount;// - drawInfo.TotalCount
+                drawInfo.PriorityPercent = (int)(drawInfo.PriorityScale * 100);
+            }
+
             DrawInfoString += "\r\n";
 
             int chaosSets = Math.Min(minItemsCount, chaosSetMaxCount);
@@ -405,10 +578,11 @@ namespace FullRareSetManager
                     foreach (var invItem in visibleInventoryItems)
                     {
                         var item = invItem.Item;
-                        var newStashItem = ProcessItem(item, curStashData);
+                        var newStashItem = ProcessItem(item);
 
                         if (newStashItem != null)
                         {
+                            curStashData.StashTabItems.Add(newStashItem);
                             newStashItem.StashName = stashName;
                             newStashItem.InventPosX = invItem.InventPosX;
                             newStashItem.InventPosY = invItem.InventPosY;
@@ -447,7 +621,6 @@ namespace FullRareSetManager
 
             SData.PlayerInventory = new StashTabData();
 
-
             var invItems = inventory.VisibleInventoryItems;
 
             if(invItems != null)
@@ -455,10 +628,11 @@ namespace FullRareSetManager
                 foreach(var invItem in invItems)
                 {
                     var item = invItem.Item;
-                    var newAddedItem = ProcessItem(item, SData.PlayerInventory);
+                    var newAddedItem = ProcessItem(item);
 
                     if(newAddedItem != null)
                     {
+                        SData.PlayerInventory.StashTabItems.Add(newAddedItem);
                         newAddedItem.InventPosX = invItem.InventPosX;
                         newAddedItem.InventPosY = invItem.InventPosY;
                         newAddedItem.bInPlayerInventory = true;
@@ -470,7 +644,7 @@ namespace FullRareSetManager
             return true;
         }
 
-        private StashItem ProcessItem(Entity item, StashTabData data)
+        private StashItem ProcessItem(Entity item)
         {
             if (item == null) return null;
 
@@ -533,7 +707,6 @@ namespace FullRareSetManager
 
             if (newItem.ItemType != StashItemType.Undefined)
             {
-                data.StashTabItems.Add(newItem);
                 return newItem;
             }
             
@@ -571,5 +744,15 @@ namespace FullRareSetManager
         Gloves
         */
 
+
+        public class ItemDisplayData
+        {
+            public BaseSetPart BaseData;
+            public int TotalCount;
+            public int TotalLowCount;
+            public int TotalHighCount;
+            public float PriorityScale;
+            public float PriorityPercent;
+        }
     }
 }
