@@ -510,7 +510,11 @@ namespace FullRareSetManager
             for (int i = 0; i <= 7; i++)
             {
                 var drawInfo = DisplayData[i];
-                drawInfo.PriorityScale = (float)drawInfo.TotalCount / maxSets;// - drawInfo.TotalCount
+                drawInfo.PriorityScale = (float)drawInfo.TotalCount / maxSets;
+
+                if (drawInfo.PriorityScale > 1)
+                    drawInfo.PriorityScale = 1;
+
                 drawInfo.PriorityPercent = (int)((1 - drawInfo.PriorityScale) * 100);
             }
 
