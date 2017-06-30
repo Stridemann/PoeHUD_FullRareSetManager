@@ -32,6 +32,8 @@ namespace FullRareSetManager
             TextSize = new RangeNode<int>(20, 0, 30);
             TextOffsetX = new RangeNode<float>(0, -50, 12);
             TextOffsetY = new RangeNode<float>(-20, -50, 12);
+            IgnoreOneHanded = false;
+            MaxSets = new RangeNode<int>(0, 0, 30);
         }
 
         [Menu("Position X")]
@@ -52,6 +54,9 @@ namespace FullRareSetManager
 
         [Menu("WeaponPreparePriority: TwoHand<->OneHand")]
         public RangeNode<int> WeaponTypePriority { get; set; }
+
+        [Menu("Max Collecting Sets (0 disable)")]
+        public RangeNode<int> MaxSets { get; set; }
 
         [Menu("Drop To Invent Key")]
         public HotkeyNode DropToInventoryKey { get; set; }
@@ -77,5 +82,10 @@ namespace FullRareSetManager
         public RangeNode<float> TextOffsetX { get; set; }
         [Menu("Text Offset Y", 6, 0)]
         public RangeNode<float> TextOffsetY { get; set; }
+
+        [Menu("Don't Higlight One Handed", 7, 0)]
+        public ToggleNode IgnoreOneHanded { get; set; }
+
+    
     }
 }

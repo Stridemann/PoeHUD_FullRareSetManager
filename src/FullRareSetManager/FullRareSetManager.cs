@@ -191,6 +191,9 @@ namespace FullRareSetManager
 
                 var visitResult = ProcessItem(item);
 
+                if (Settings.IgnoreOneHanded && visitResult.ItemType == StashItemType.OneHanded)
+                    visitResult = null;
+
                 if (visitResult != null)
                 {
                     int index = (int)visitResult.ItemType;
@@ -499,10 +502,15 @@ namespace FullRareSetManager
                 drawInfo.TotalHighCount = high;
             }
 
+            int maxSets = maxItemsCount;
+
+            if (Settings.MaxSets.Value > 0)
+                maxSets = Settings.MaxSets.Value;
+
             for (int i = 0; i <= 7; i++)
             {
                 var drawInfo = DisplayData[i];
-                drawInfo.PriorityScale = (float)drawInfo.TotalCount / maxItemsCount;// - drawInfo.TotalCount
+                drawInfo.PriorityScale = (float)drawInfo.TotalCount / maxSets;// - drawInfo.TotalCount
                 drawInfo.PriorityPercent = (int)((1 - drawInfo.PriorityScale) * 100);
             }
 
