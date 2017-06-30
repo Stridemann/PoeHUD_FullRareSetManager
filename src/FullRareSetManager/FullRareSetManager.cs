@@ -191,6 +191,8 @@ namespace FullRareSetManager
 
                 var visitResult = ProcessItem(item);
 
+                if (visitResult == null) return;
+
                 if (Settings.IgnoreOneHanded && visitResult.ItemType == StashItemType.OneHanded)
                     visitResult = null;
 
