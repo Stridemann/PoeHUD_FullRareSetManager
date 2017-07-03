@@ -80,7 +80,7 @@ namespace FullRareSetManager
         private StashItem[] CurrentSetItems;
         public override PrepareItemResult PrepareItemForSet(FullRareSetManager_Settings settings)
         {
-            bool oneHandedFirst = settings.WeaponTypePriority == 1;
+            bool oneHandedFirst = settings.WeaponTypePriority.Value == "One handed";
 
             if (!oneHandedFirst)
             {

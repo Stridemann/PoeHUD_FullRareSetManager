@@ -21,7 +21,8 @@ namespace FullRareSetManager
             ShowRegalSets = false;
             PositionX = new RangeNode<float>(0.0f, 0.0f, 2000.0f);
             PositionY = new RangeNode<float>(365.0f, 0.0f, 2000.0f);
-            WeaponTypePriority = new RangeNode<int>(0, 0, 1);
+            WeaponTypePriority = new ListNode();
+            WeaponTypePriority.Value = "Two handed";
             DropToInventoryKey = Keys.F5;
 
             EnableBorders = false;
@@ -52,10 +53,10 @@ namespace FullRareSetManager
         [Menu("Show Regal sets")]
         public ToggleNode ShowRegalSets { get; set; }
 
-        [Menu("WeaponPreparePriority: TwoHand<->OneHand")]
-        public RangeNode<int> WeaponTypePriority { get; set; }
+        [Menu("Priority", "Weapon prepare priority in list of set items. If you have 1-handed and 2-handed weapons- it will consider this option.")]
+        public ListNode WeaponTypePriority { get; set; }
 
-        [Menu("Max Collecting Sets (0 disable)")]
+        [Menu("Max Collecting Sets (0 disable)", "Amount of sets you going to collect. It will display lower pick priority if amount of item are more than this value.")]
         public RangeNode<int> MaxSets { get; set; }
 
         [Menu("Drop To Invent Key")]
@@ -72,7 +73,7 @@ namespace FullRareSetManager
         public RangeNode<int> BorderWidth { get; set; }
         [Menu("Borders Oversize", 2, 0)]
         public RangeNode<int> BorderOversize { get; set; }
-        [Menu("Resize Borders accord. to Pick Priority", 3, 0)]
+        [Menu("Resize Borders accord. to Pick Priority", "That will change borders width, oversize depending on pick priority.", 3, 0)]
         public ToggleNode BorderAutoResize { get; set; }
 
         [Menu("Text Size", 4, 0)]

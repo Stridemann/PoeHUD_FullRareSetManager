@@ -35,6 +35,8 @@ namespace FullRareSetManager
             UpdateItemsSetsInfo();
 
             GameController.Area.OnAreaChange += OnAreaChange;
+
+            Settings.WeaponTypePriority.SetListValues(new List<string>() { "Two handed", "One handed" });
         }
 
         private void OnAreaChange(AreaController area)
