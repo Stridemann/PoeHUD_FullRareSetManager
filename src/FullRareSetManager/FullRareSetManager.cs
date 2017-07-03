@@ -349,7 +349,7 @@ namespace FullRareSetManager
 
                     if (visibleInventoryItems != null)
                     {
-                        var StashTabRect = CurrentOpenedStashTab.InventoryRootElement.GetClientRect();
+                        var StashTabRect = CurrentOpenedStashTab.InventoryUiElement.GetClientRect();
 
                         var setItemsListRect = new RectangleF(StashTabRect.Right, StashTabRect.Bottom, 270, 240);
                         Graphics.DrawBox(setItemsListRect, new Color(0, 0, 0, 200));
@@ -613,6 +613,8 @@ namespace FullRareSetManager
                 CurrentOpenedStashTab = stash;
                 CurrentOpenedStashTabName = stashName;
 
+                if (stash.ItemCount != visibleInventoryItems.Count) continue;
+
                 StashTabData curStashData = null;
 
                 bool add = false;
@@ -621,8 +623,6 @@ namespace FullRareSetManager
                     curStashData = new StashTabData();
                     add = true;
                 }
-
-                if (stash.ItemCount != visibleInventoryItems.Count) continue;
 
                 if (curStashData.ItemsCount != stash.ItemCount)
                 {
