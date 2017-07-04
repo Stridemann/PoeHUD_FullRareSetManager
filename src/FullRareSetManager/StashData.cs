@@ -6,19 +6,19 @@ namespace FullRareSetManager
 {
     public class StashData
     {
-        private const string StashDataFile = "StashData.json";
+        private const string STASH_DATA_FILE = "StashData.json";
         public Dictionary<string, StashTabData> StashTabs = new Dictionary<string, StashTabData>();
         public StashTabData PlayerInventory = new StashTabData();
 
 
-        public static StashData Load(FullRareSetManager plugin)
+        public static StashData Load(Core plugin)
         {
-            StashData result = null;
-            var dataFileFullPath = plugin.PluginDirectory + "\\" + StashDataFile;
+            StashData result;
+            var dataFileFullPath = plugin.PluginDirectory + "\\" + STASH_DATA_FILE;
 
             if (File.Exists(dataFileFullPath))
             {
-                string json = File.ReadAllText(dataFileFullPath);
+                var json = File.ReadAllText(dataFileFullPath);
                 result = JsonConvert.DeserializeObject<StashData>(json);
             }
             else
@@ -29,19 +29,22 @@ namespace FullRareSetManager
             return result;
         }
 
-        public static void Save(FullRareSetManager plugin, StashData data)
+        public static void Save(Core plugin, StashData data)
         {
             try
             {
-                var dataFileFullPath = plugin.PluginDirectory + "\\" + StashDataFile;
+                var dataFileFullPath = plugin.PluginDirectory + "\\" + STASH_DATA_FILE;
 
                 var settingsDirName = Path.GetDirectoryName(dataFileFullPath);
                 if (!Directory.Exists(settingsDirName))
-                    Directory.CreateDirectory(settingsDirName);
+                    if (settingsDirName != null)
+                    {
+                        Directory.CreateDirectory(settingsDirName);
+                    }
 
                 using (var stream = new StreamWriter(File.Create(dataFileFullPath)))
                 {
-                    string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+                    var json = JsonConvert.SerializeObject(data, Formatting.Indented);
                     stream.Write(json);
                 }
             }
@@ -65,15 +68,15 @@ namespace FullRareSetManager
         public string ItemClass;
         public string ItemName;
         public bool LowLvl;
-        public bool bIdentified;
+        public bool BIdentified;
         public int InventPosX;
         public int InventPosY;
-        public bool bInPlayerInventory;
+        public bool BInPlayerInventory;
         //public int ItemQuality;//TODO: consider item quality in future
     }
 
 
-    public enum StashItemType : int
+    public enum StashItemType
     {
         Undefined = -1,
 

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PoeHUD.Hud.Settings;
+﻿using PoeHUD.Hud.Settings;
 using PoeHUD.Plugins;
 using System.Windows.Forms;
-using SharpDX;
 
 namespace FullRareSetManager
 {
-    public class FullRareSetManager_Settings : SettingsBase
+    public class FullRareSetManagerSettings : SettingsBase
     {
-        public FullRareSetManager_Settings()
+        public FullRareSetManagerSettings()
         {
             Enable = false;
             AllowIdentified = false;
@@ -21,8 +15,7 @@ namespace FullRareSetManager
             ShowRegalSets = false;
             PositionX = new RangeNode<float>(0.0f, 0.0f, 2000.0f);
             PositionY = new RangeNode<float>(365.0f, 0.0f, 2000.0f);
-            WeaponTypePriority = new ListNode();
-            WeaponTypePriority.Value = "Two handed";
+            WeaponTypePriority = new ListNode {Value = "Two handed"};
             DropToInventoryKey = Keys.F5;
 
             EnableBorders = false;
@@ -86,7 +79,5 @@ namespace FullRareSetManager
 
         [Menu("Don't Higlight One Handed", 7, 0)]
         public ToggleNode IgnoreOneHanded { get; set; }
-
-    
     }
 }
