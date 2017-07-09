@@ -428,7 +428,7 @@ namespace FullRareSetManager
             _currentSetData = new CurrentSetInfo();
             _itemSetTypes = new BaseSetPart[8];
             _itemSetTypes[0] = new WeaponItemsSetPart("Weapons");
-            _itemSetTypes[0].ItemCellsSize = 6;
+            _itemSetTypes[0].ItemCellsSize = 8;
             _itemSetTypes[1] = new SingleItemSetPart("Helmets");
             _itemSetTypes[1].ItemCellsSize = 4;
             _itemSetTypes[2] = new SingleItemSetPart("Body Armors");
