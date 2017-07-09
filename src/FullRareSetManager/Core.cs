@@ -312,10 +312,11 @@ namespace FullRareSetManager
                                  $"ItemName: {item.ItemName}.\n" +
                                  $"Inventory Position: ({item.InventPosX},{item.InventPosY})", 5);
                     }
+                    Thread.Sleep(100);
                     UpdateStashes();
                 }
                 Keyboard.KeyUp(Keys.LControlKey);
-                part.RemovePreparedItems();
+                //part.RemovePreparedItems();
             }
             UpdatePlayerInventory();
             UpdateItemsSetsInfo();
@@ -700,6 +701,7 @@ namespace FullRareSetManager
                 {
                     _sData.StashTabs.Add(stashName, curStashData);
                 }
+                break;
             }
 
             if (!needUpdateAllInfo)
