@@ -158,5 +158,12 @@ namespace FullRareSetManager.SetParts
                 HighLvlItems.Remove(_currentSetItem);
             }
         }
+
+        public override int PlayerInventItemsCount()
+        {
+            return
+                HighLvlItems.Count(x => x.BInPlayerInventory) +
+                LowLvlItems.Count(x => x.BInPlayerInventory);
+        }
     }
 }

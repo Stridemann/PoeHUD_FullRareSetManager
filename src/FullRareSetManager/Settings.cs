@@ -28,6 +28,7 @@ namespace FullRareSetManager
             TextOffsetY = new RangeNode<float>(-20, -50, 12);
             IgnoreOneHanded = false;
             MaxSets = new RangeNode<int>(0, 0, 30);
+            CalcByFreeSpace = false;
         }
 
         [Menu("Position X")]
@@ -79,5 +80,8 @@ namespace FullRareSetManager
 
         [Menu("Don't Higlight One Handed", 7, 0)]
         public ToggleNode IgnoreOneHanded { get; set; }
+
+        [Menu("Separate stash tabs for each item type", "Pick priority will be calculated by free space in stash tab. Free space will be calculated for each item stash tab.")]
+        public ToggleNode CalcByFreeSpace { get; set; }
     }
 }

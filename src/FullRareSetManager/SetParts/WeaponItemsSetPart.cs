@@ -395,5 +395,15 @@ namespace FullRareSetManager.SetParts
                 OneHandedHighLvlItems.Remove(item);
             }
         }
+
+
+        public override int PlayerInventItemsCount()
+        {
+            return
+                TwoHandedHighLvlItems.Count(x => x.BInPlayerInventory) +
+                TwoHandedLowLvlItems.Count(x => x.BInPlayerInventory) +
+                OneHandedHighLvlItems.Count(x => x.BInPlayerInventory) +
+                OneHandedLowLvlItems.Count(x => x.BInPlayerInventory);
+        }
     }
 }

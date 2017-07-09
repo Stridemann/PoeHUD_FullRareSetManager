@@ -46,6 +46,7 @@ namespace FullRareSetManager
         {
             SetupOrClose();
             Settings.Enable.OnValueChanged += SetupOrClose;
+            Settings.CalcByFreeSpace.OnValueChanged += UpdateItemsSetsInfo;
         }
 
         private void SetupOrClose()
@@ -426,13 +427,22 @@ namespace FullRareSetManager
             _currentSetData = new CurrentSetInfo();
             _itemSetTypes = new BaseSetPart[8];
             _itemSetTypes[0] = new WeaponItemsSetPart("Weapons");
+            _itemSetTypes[0].ItemCellsSize = 6;
             _itemSetTypes[1] = new SingleItemSetPart("Helmets");
+            _itemSetTypes[1].ItemCellsSize = 4;
             _itemSetTypes[2] = new SingleItemSetPart("Body Armors");
+            _itemSetTypes[2].ItemCellsSize = 6;
             _itemSetTypes[3] = new SingleItemSetPart("Gloves");
+            _itemSetTypes[3].ItemCellsSize = 4;
             _itemSetTypes[4] = new SingleItemSetPart("Boots");
+            _itemSetTypes[4].ItemCellsSize = 4;
             _itemSetTypes[5] = new SingleItemSetPart("Belts");
+            _itemSetTypes[5].ItemCellsSize = 2;
             _itemSetTypes[6] = new SingleItemSetPart("Amulets");
+            _itemSetTypes[6].ItemCellsSize = 1;
             _itemSetTypes[7] = new RingItemsSetPart("Rings");
+            _itemSetTypes[7].ItemCellsSize = 1;
+
 
             for (var i = 0; i <= 7; i++)
             {
@@ -452,9 +462,12 @@ namespace FullRareSetManager
                 setPart.AddItem(item);
             }
 
+            const int StashCellsCount = 12 * 12;
+
             foreach (var stash in _sData.StashTabs)
             {
-                foreach (var item in stash.Value.StashTabItems)
+                var stashTabItems = stash.Value.StashTabItems;
+                foreach (var item in stashTabItems)
                 {
                     var index = (int) item.ItemType;
 
@@ -465,6 +478,7 @@ namespace FullRareSetManager
 
                     var setPart = _itemSetTypes[index];
                     setPart.AddItem(item);
+                    setPart.StashTabItemsCount = stashTabItems.Count;
                 }
             }
 
@@ -476,56 +490,73 @@ namespace FullRareSetManager
             var minItemsCount = int.MaxValue;
             var maxItemsCount = 0;
 
+
+        
             for (var i = 0; i <= 7; i++) //Check that we have enough items for any set
             {
-                var part = _itemSetTypes[i];
+                var setPart = _itemSetTypes[i];
 
-                var low = part.LowSetsCount();
-                var high = part.HighSetsCount();
-                var total = part.TotalSetsCount();
+                var low = setPart.LowSetsCount();
+                var high = setPart.HighSetsCount();
+                var total = setPart.TotalSetsCount();
 
                 if (minItemsCount > total)
-                {
                     minItemsCount = total;
-                }
 
                 if (maxItemsCount < total)
-                {
                     maxItemsCount = total;
-                }
 
                 if (regalSetMaxCount > high)
-                {
                     regalSetMaxCount = high;
-                }
 
                 chaosSetMaxCount += low;
-                _drawInfoString += part.GetInfoString() + "\r\n";
+                _drawInfoString += setPart.GetInfoString() + "\r\n";
 
                 var drawInfo = DisplayData[i];
                 drawInfo.TotalCount = total;
                 drawInfo.TotalLowCount = low;
                 drawInfo.TotalHighCount = high;
-            }
 
-            var maxSets = maxItemsCount;
-
-            if (Settings.MaxSets.Value > 0)
-            {
-                maxSets = Settings.MaxSets.Value;
-            }
-
-            for (var i = 0; i <= 7; i++)
-            {
-                var drawInfo = DisplayData[i];
-                drawInfo.PriorityScale = (float) drawInfo.TotalCount / maxSets;
-
-                if (drawInfo.PriorityScale > 1)
+                if (Settings.CalcByFreeSpace.Value)
                 {
-                    drawInfo.PriorityScale = 1;
+                    int totalPossibleStashItemsCount = StashCellsCount / setPart.ItemCellsSize;
+
+                    drawInfo.FreeSpaceCount = totalPossibleStashItemsCount - (setPart.StashTabItemsCount + setPart.PlayerInventItemsCount());
+
+                    if (drawInfo.FreeSpaceCount < 0)
+                        drawInfo.FreeSpaceCount = 0;
+
+                    drawInfo.PriorityPercent = (float)drawInfo.FreeSpaceCount / totalPossibleStashItemsCount;
+                    if (drawInfo.PriorityPercent > 1)
+                        drawInfo.PriorityPercent = 1;
+                    drawInfo.PriorityPercent = 1 - drawInfo.PriorityPercent;
+                }
+            }
+
+       
+            if (!Settings.CalcByFreeSpace.Value)
+            {
+                var maxSets = maxItemsCount;
+
+                if (Settings.MaxSets.Value > 0)
+                {
+                    maxSets = Settings.MaxSets.Value;
                 }
 
-                drawInfo.PriorityPercent = (int) ((1 - drawInfo.PriorityScale) * 100);
+                for (var i = 0; i <= 7; i++)
+                {
+                    var drawInfo = DisplayData[i];
+
+                    if (drawInfo.TotalCount == 0)
+                        drawInfo.PriorityPercent = 1;
+                    else
+                    {
+                        drawInfo.PriorityPercent = (float)drawInfo.TotalCount / maxSets;
+
+                        if (drawInfo.PriorityPercent > 1)
+                            drawInfo.PriorityPercent = 1;
+                    }
+                }
             }
 
             _drawInfoString += "\r\n";
@@ -533,8 +564,12 @@ namespace FullRareSetManager
             var chaosSets = Math.Min(minItemsCount, chaosSetMaxCount);
 
             _drawInfoString += "Chaos sets ready: " + chaosSets;
-            _drawInfoString += "\r\n";
-            _drawInfoString += "Regal sets ready: " + regalSetMaxCount;
+
+            if (Settings.ShowRegalSets.Value)
+            {
+                _drawInfoString += "\r\n";
+                _drawInfoString += "Regal sets ready: " + regalSetMaxCount;
+            }
 
             if (chaosSets <= 0 && regalSetMaxCount <= 0)
             {
@@ -848,10 +883,10 @@ namespace FullRareSetManager
         {
             public BaseSetPart BaseData;
             public float PriorityPercent;
-            public float PriorityScale;
             public int TotalCount;
             public int TotalHighCount;
             public int TotalLowCount;
+            public int FreeSpaceCount;
         }
 
         #region Draw labels
@@ -915,7 +950,7 @@ namespace FullRareSetManager
 
                 if (visitResult != null)
                 {
-                    var index = (int) visitResult.ItemType;
+                    var index = (int)visitResult.ItemType;
 
                     if (index > 7)
                     {
@@ -925,7 +960,7 @@ namespace FullRareSetManager
                     var data = DisplayData[index];
                     var rect = inventItem.GetClientRect();
 
-                    var borderColor = Color.Lerp(Color.Red, Color.Green, data.PriorityScale);
+                    var borderColor = Color.Lerp(Color.Red, Color.Green, data.PriorityPercent);
 
                     rect.X += 2;
                     rect.Y += 2;
@@ -938,8 +973,10 @@ namespace FullRareSetManager
                     Graphics.DrawBox(testRect, new Color(10, 10, 10, 230));
                     Graphics.DrawFrame(rect, 2, borderColor);
 
-                    Graphics.DrawText(data.PriorityPercent + "%", Settings.TextSize.Value, testRect.TopLeft,
-                        Color.White);
+                    if (Settings.CalcByFreeSpace.Value)
+                        Graphics.DrawText($"{data.FreeSpaceCount}", Settings.TextSize.Value, testRect.TopLeft, Color.White);
+                    else
+                        Graphics.DrawText($"{data.PriorityPercent:p0}", Settings.TextSize.Value, testRect.TopLeft, Color.White);
                 }
             }
         }
@@ -964,7 +1001,7 @@ namespace FullRareSetManager
 
                     if (Settings.BorderAutoResize.Value)
                     {
-                        incrSize = (int) Lerp(incrSize, 1, data.PriorityScale);
+                        incrSize = (int)Lerp(incrSize, 1, data.PriorityPercent);
                     }
 
                     rect.X -= incrSize;
@@ -973,14 +1010,14 @@ namespace FullRareSetManager
                     rect.Width += incrSize * 2;
                     rect.Height += incrSize * 2;
 
-                    var borderColor = Color.Lerp(Color.Red, Color.Green, data.PriorityScale);
+                    var borderColor = Color.Lerp(Color.Red, Color.Green, data.PriorityPercent);
 
 
                     var borderWidth = Settings.BorderWidth.Value;
 
                     if (Settings.BorderAutoResize.Value)
                     {
-                        borderWidth = (int) Lerp(borderWidth, 1, data.PriorityScale);
+                        borderWidth = (int)Lerp(borderWidth, 1, data.PriorityPercent);
                     }
 
                     Graphics.DrawFrame(rect, borderWidth, borderColor);
@@ -1004,9 +1041,10 @@ namespace FullRareSetManager
                         {
                             rect.Y += rect.Height * (Settings.TextOffsetY.Value / 10);
                         }
-
-                        Graphics.DrawText(data.PriorityPercent + "%", Settings.TextSize.Value, rect.TopLeft,
-                            Color.White);
+                        if (Settings.CalcByFreeSpace.Value)
+                            Graphics.DrawText($"{data.FreeSpaceCount}", Settings.TextSize.Value, rect.TopLeft, Color.White);
+                        else
+                            Graphics.DrawText($"{data.PriorityPercent:p0}", Settings.TextSize.Value, rect.TopLeft, Color.White);
                     }
                 }
             }

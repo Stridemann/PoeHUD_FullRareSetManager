@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FullRareSetManager.SetParts
@@ -318,6 +319,13 @@ namespace FullRareSetManager.SetParts
             {
                 HighLvlItems.Remove(item);
             }
+        }
+
+        public override int PlayerInventItemsCount()
+        {
+            return 
+                HighLvlItems.Count(x => x.BInPlayerInventory) + 
+                LowLvlItems.Count(x => x.BInPlayerInventory);
         }
     }
 }
