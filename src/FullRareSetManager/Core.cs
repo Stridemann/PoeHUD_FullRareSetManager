@@ -250,9 +250,9 @@ namespace FullRareSetManager
                 {
                     return;
                 }
-                Thread.Sleep(latency);
-                var acceptButton = npcTradingWindow.Children[5];
-                Mouse.SetCursorPosAndLeftClick(acceptButton.GetClientRect().Center + gameWindow);
+                //Thread.Sleep(latency);
+                //var acceptButton = npcTradingWindow.Children[5];
+                //Mouse.SetCursorPosAndLeftClick(acceptButton.GetClientRect().Center + gameWindow);
             }
             catch
             {
