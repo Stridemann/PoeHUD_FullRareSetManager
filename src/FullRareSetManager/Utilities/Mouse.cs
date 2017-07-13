@@ -39,6 +39,11 @@ namespace FullRareSetManager.Utilities
             return lpPoint;
         }
 
+        public static void SetCursorPos(Vector2 pos)
+        {
+            SetCursorPos((int)pos.X, (int)pos.Y);
+        }
+
         public static void SetCursorPos(POINT pos)
         {
             SetCursorPos(pos.X, pos.Y);
