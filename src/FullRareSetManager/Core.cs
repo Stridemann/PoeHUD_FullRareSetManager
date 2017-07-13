@@ -16,6 +16,11 @@ using PoeHUD.Poe.Components;
 using PoeHUD.Poe.Elements;
 using PoeHUD.Poe.RemoteMemoryObjects;
 using SharpDX;
+using PoeHUD.Hud;
+using PoeHUD.Hud.Menu;
+using PoeHUD.Poe;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace FullRareSetManager
 {
@@ -47,6 +52,8 @@ namespace FullRareSetManager
             SetupOrClose();
             Settings.Enable.OnValueChanged += SetupOrClose;
             Settings.CalcByFreeSpace.OnValueChanged += UpdateItemsSetsInfo;
+
+            MenuPlugin.eMouseEvent += OnMouseEvent;
         }
 
         private void SetupOrClose()
@@ -423,6 +430,9 @@ namespace FullRareSetManager
             Graphics.DrawText(_drawInfoString, 15, new Vector2(posX, posY));
         }
 
+
+
+
         private void UpdateItemsSetsInfo()
         {
             _currentSetData = new CurrentSetInfo();
@@ -633,8 +643,6 @@ namespace FullRareSetManager
                 }
             }
         }
-
-
         private bool UpdateStashes()
         {
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
@@ -719,8 +727,6 @@ namespace FullRareSetManager
 
             return true;
         }
-
-
         private bool UpdatePlayerInventory()
         {
             if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
@@ -763,6 +769,70 @@ namespace FullRareSetManager
 
             return true;
         }
+
+        private long CurPickItemCount = 0;
+        private void OnMouseEvent(MouseEventID eventId, Vector2 pos)
+        {
+            try
+            {
+                if (!Settings.Enable || !GameController.Window.IsForeground() || eventId != MouseEventID.LeftButtonDown)
+                {
+                    return;
+                }
+                Element uiHover = GameController.Game.IngameState.UIHover;
+                var HoverItemIcon = uiHover.AsObject<HoverItemIcon>();
+
+                if (HoverItemIcon.ToolTipType == ToolTipType.ItemOnGround)
+                {
+                    var item = HoverItemIcon.Item;
+
+                    var filteredItemResult = ProcessItem(item);
+
+                    if (filteredItemResult == null) return;
+
+                    if (++CurPickItemCount > long.MaxValue)
+                        CurPickItemCount = 0;
+
+                    Task.Factory.StartNew(async () =>
+                    {
+                        long curItemPickCount = CurPickItemCount;
+                        Stopwatch sw = Stopwatch.StartNew();
+                        while (item.IsValid)
+                        {
+                            await Task.Delay(30);
+
+                            //We want to prevent the item was added more than once
+                            if (curItemPickCount != CurPickItemCount)
+                                return;
+
+                            if (sw.ElapsedMilliseconds <= 10000) continue;
+                            sw.Stop();
+                            break;
+                        }
+
+                        //We want to prevent the item was added more than once
+                        if (curItemPickCount != CurPickItemCount)
+                            return;
+
+                        if (!item.IsValid)
+                        {
+                            filteredItemResult.BInPlayerInventory = true;
+                            _sData.PlayerInventory.StashTabItems.Add(filteredItemResult);
+                            UpdateItemsSetsInfo();
+                        }
+                    });
+
+                }
+            }
+            catch (Exception e)
+            {
+                LogError("OnMouseEvent error: " + e.Message, 4);
+                return;
+            }
+            return;
+        }
+
+
 
         private StashItem ProcessItem(IEntity item)
         {
