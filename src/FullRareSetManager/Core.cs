@@ -96,11 +96,6 @@ namespace FullRareSetManager
                                            "README.md\n\r" +
                                            "LICENSE\n\r" +
                                            "Screenshot.jpg\n\r";
-            CreateFileAndAppendTextIfItDoesNotExist(path, gitUpdateConfig);
-        }
-
-        private static void CreateFileAndAppendTextIfItDoesNotExist(string path, string content)
-        {
             if (File.Exists(path))
             {
                 return;
@@ -108,7 +103,7 @@ namespace FullRareSetManager
 
             using (var streamWriter = new StreamWriter(path, true))
             {
-                streamWriter.Write(content);
+                streamWriter.Write(gitUpdateConfig);
                 streamWriter.Close();
             }
         }

@@ -291,3 +291,5 @@ ErrorLog.txt
 StashData.json
 %PluginUpdateLog.txt
 src/FullRareSetManager/FullRareSetManager.csproj
+
+%Backup%/
