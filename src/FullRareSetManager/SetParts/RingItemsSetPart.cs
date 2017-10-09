@@ -207,7 +207,7 @@ namespace FullRareSetManager.SetParts
             {
                 HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
 
-                inPlayerInvent = LowLvlItems[1].BInPlayerInventory;
+                inPlayerInvent = LowLvlItems.Count > 1 && LowLvlItems[1].BInPlayerInventory;
 
                 if (!inPlayerInvent)
                 {
