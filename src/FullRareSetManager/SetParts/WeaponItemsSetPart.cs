@@ -44,28 +44,15 @@ namespace FullRareSetManager.SetParts
 
         public override int LowSetsCount()
         {
-            var count = TwoHandedLowLvlItems.Count;
+            var highLvlItemsToUse = Math.Min(OneHandedLowLvlItems.Count, OneHandedHighLvlItems.Count);
 
-            int oneHandedCount;
-
-            var oneHandedLeft = OneHandedLowLvlItems.Count - OneHandedHighLvlItems.Count; //High and low together
-
-            if (oneHandedLeft <= 0)
-            {
-                oneHandedCount = OneHandedLowLvlItems.Count;
-            }
-            else
-            {
-                oneHandedCount = OneHandedHighLvlItems.Count + oneHandedLeft / 2; //(High & low) + (Low / 2)
-            }
-
-
-            return count + oneHandedCount;
+            return TwoHandedLowLvlItems.Count +
+                   (OneHandedLowLvlItems.Count + highLvlItemsToUse) / 2;
         }
 
         public override int HighSetsCount()
         {
-            return TwoHandedHighLvlItems.Count + OneHandedHighLvlItems.Count;
+            return TwoHandedHighLvlItems.Count + OneHandedHighLvlItems.Count / 2;
         }
 
         public override int TotalSetsCount()
