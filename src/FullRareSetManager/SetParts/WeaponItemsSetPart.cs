@@ -65,7 +65,7 @@ namespace FullRareSetManager.SetParts
 
         public override int HighSetsCount()
         {
-            return TwoHandedHighLvlItems.Count + OneHandedHighLvlItems.Count;
+            return TwoHandedHighLvlItems.Count + OneHandedHighLvlItems.Count / 2;
         }
 
         public override int TotalSetsCount()
