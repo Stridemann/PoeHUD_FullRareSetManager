@@ -38,14 +38,14 @@ namespace FullRareSetManager.SetParts
 
             if (oneHandedLeft <= 0)
             {
-                return LowLvlItems.Count;
+                return LowLvlItems.Count / 2;
             }
             return HighLvlItems.Count + oneHandedLeft / 2; //(High & low) + (Low / 2)
         }
 
         public override int HighSetsCount()
         {
-            return HighLvlItems.Count;
+            return HighLvlItems.Count / 2;
         }
 
         public override string GetInfoString()
