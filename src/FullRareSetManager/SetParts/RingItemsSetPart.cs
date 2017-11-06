@@ -45,7 +45,7 @@ namespace FullRareSetManager.SetParts
 
         public override int HighSetsCount()
         {
-            return HighLvlItems.Count;
+            return HighLvlItems.Count / 2;
         }
 
         public override string GetInfoString()
