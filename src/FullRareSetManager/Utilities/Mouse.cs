@@ -49,9 +49,21 @@ namespace FullRareSetManager.Utilities
             SetCursorPos(pos.X, pos.Y);
         }
 
+        /*
         public static void SetCursorPosAndLeftClick(Vector2 pos)
         {
             SetCursorPosAndLeftClick((int) pos.X, (int) pos.Y);
+        }
+        */
+        public static void SetCursorPosAndLeftClick(Vector2 coords, int extraDelay)
+        {
+            var posX = (int)coords.X;
+            var posY = (int)coords.Y;
+            SetCursorPos(posX, posY);
+            Thread.Sleep(MOVEMENT_DELAY + extraDelay);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            Thread.Sleep(CLICK_DELAY);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
 
         public static void SetCursorPosAndLeftClick(int xpos, int ypos)

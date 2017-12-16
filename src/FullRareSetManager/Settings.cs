@@ -17,6 +17,7 @@ namespace FullRareSetManager
             PositionY = new RangeNode<float>(365.0f, 0.0f, 2000.0f);
             WeaponTypePriority = new ListNode {Value = "Two handed"};
             DropToInventoryKey = Keys.F5;
+            ExtraDelay = new RangeNode<int>(50, 0, 2000);
 
             EnableBorders = false;
             InventBorders = false;
@@ -56,6 +57,8 @@ namespace FullRareSetManager
         [Menu("Drop To Invent Key")]
         public HotkeyNode DropToInventoryKey { get; set; }
 
+        [Menu("Extra Click Delay")]
+        public RangeNode<int> ExtraDelay { get; set; }
 
         [Menu("Items Lables Borders", 0)]
         public ToggleNode EnableBorders { get; set; }

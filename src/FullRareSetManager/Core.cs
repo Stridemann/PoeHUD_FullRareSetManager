@@ -45,6 +45,13 @@ namespace FullRareSetManager
         public Core()
         {
             PluginName = "Rare Set Manager";
+            API.SubscribePluginEvent("UpdateStashes", ExternalUpdateStashes);
+        }
+
+        private void ExternalUpdateStashes(object[] args)
+        {
+            LogMessage("ExternalUpdateStashes", 2);
+            UpdateStashes();
         }
 
         public override void Initialise()
@@ -192,7 +199,7 @@ namespace FullRareSetManager
                 if (!npcTradingWindow.IsVisible)
                 {
                     // The vendor sell window is not open, but is in memory (it would've went straigth to catch if that wasn't the case).
-                    LogMessage("Error 123901230.", 5);
+                    LogMessage("Error: npcTradingWindow is not visible (opened)!", 5);
                 }
 
                 Keyboard.KeyDown(Keys.LControlKey);
@@ -220,10 +227,12 @@ namespace FullRareSetManager
                             return;
                         }
 
-                        Mouse.SetCursorPosAndLeftClick(foundItem.GetClientRect().Center + gameWindow);
-                        Thread.Sleep(latency);
+                        Mouse.SetCursorPosAndLeftClick(foundItem.GetClientRect().Center + gameWindow, Settings.ExtraDelay);
+                        Thread.Sleep(latency + Settings.ExtraDelay);
                     }
                 }
+
+                Thread.Sleep(Settings.ExtraDelay);
                 Keyboard.KeyUp(Keys.LControlKey);
                 Thread.Sleep(INPUT_DELAY);
 
@@ -252,7 +261,7 @@ namespace FullRareSetManager
                 {
                     return;
                 }
-                Thread.Sleep(latency);
+                Thread.Sleep(latency + Settings.ExtraDelay);
                 var acceptButton = npcTradingWindow.Children[5];
                 Mouse.SetCursorPos(acceptButton.GetClientRect().Center + gameWindow);
             }
@@ -269,7 +278,7 @@ namespace FullRareSetManager
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
             var stashNames = stashPanel.AllStashNames;
             var gameWindowPos = GameController.Window.GetWindowRectangle();
-            var latency = (int) GameController.Game.IngameState.CurLatency;
+            var latency = (int)GameController.Game.IngameState.CurLatency + Settings.ExtraDelay;
             var cursorPosPreMoving = Mouse.GetCursorPosition();
 
             // Iterrate through all the different item types.
@@ -280,42 +289,55 @@ namespace FullRareSetManager
 
                 Keyboard.KeyDown(Keys.LControlKey);
                 Thread.Sleep(INPUT_DELAY);
-                foreach (var curPreparedItem in items)
+
+                try
                 {
-                    // If items is already in our inventory, move on.
-                    if (curPreparedItem.BInPlayerInventory)
+                    foreach (var curPreparedItem in items)
                     {
-                        continue;
+                        // If items is already in our inventory, move on.
+                        if (curPreparedItem.BInPlayerInventory)
+                        {
+                            continue;
+                        }
+
+                        // Get the index of the item we want to move from stash to inventory.
+                        var invIndex = stashNames.IndexOf(curPreparedItem.StashName);
+
+                        // Switch to the tab we want to go to.
+                        if (!_inventDrop.SwitchToTab(invIndex, Settings))
+                        {
+                            //throw new Exception("Can't switch to tab");
+                            Keyboard.KeyUp(Keys.LControlKey);
+                            return;
+                        }
+                        Thread.Sleep(latency + Settings.ExtraDelay);
+                        // Get the current visible stash tab.
+                        _currentOpenedStashTab = stashPanel.VisibleStash;
+
+                        var item = curPreparedItem;
+                        var foundItem =
+                            _currentOpenedStashTab.VisibleInventoryItems.Find(
+                                x => x.InventPosX == item.InventPosX && x.InventPosY == item.InventPosY);
+
+                        if (foundItem != null)
+                        {
+                            // If we found the item.
+                            Mouse.SetCursorPosAndLeftClick(foundItem.GetClientRect().Center + gameWindowPos.TopLeft, Settings.ExtraDelay);
+                            Thread.Sleep(latency + Settings.ExtraDelay);
+                        }
+                        else
+                        {
+                            LogError("We couldn't find the item we where looking for.\n" +
+                                     $"ItemName: {item.ItemName}.\n" +
+                                     $"Inventory Position: ({item.InventPosX},{item.InventPosY})", 5);
+                        }
+                        
+                        UpdateStashes();
                     }
-
-                    // Get the index of the item we want to move from stash to inventory.
-                    var invIndex = stashNames.IndexOf(curPreparedItem.StashName);
-
-                    // Switch to the tab we want to go to.
-                    _inventDrop.SwitchToTab(invIndex);
-
-                    // Get the current visible stash tab.
-                    _currentOpenedStashTab = stashPanel.VisibleStash;
-
-                    var item = curPreparedItem;
-                    var foundItem =
-                        _currentOpenedStashTab.VisibleInventoryItems.Find(
-                            x => x.InventPosX == item.InventPosX && x.InventPosY == item.InventPosY);
-
-                    if (foundItem != null)
-                    {
-                        // If we found the item.
-                        Mouse.SetCursorPosAndLeftClick(foundItem.GetClientRect().Center + gameWindowPos.TopLeft);
-                        Thread.Sleep(latency);
-                    }
-                    else
-                    {
-                        LogError("We couldn't find the item we where looking for.\n" +
-                                 $"ItemName: {item.ItemName}.\n" +
-                                 $"Inventory Position: ({item.InventPosX},{item.InventPosY})", 5);
-                    }
-                    Thread.Sleep(100);
-                    UpdateStashes();
+                }
+                catch (Exception ex)
+                {
+                    LogError("Error move items: " + ex.Message, 4);
                 }
                 Keyboard.KeyUp(Keys.LControlKey);
                 //part.RemovePreparedItems();
@@ -638,7 +660,7 @@ namespace FullRareSetManager
                 }
             }
         }
-        private bool UpdateStashes()
+        public bool UpdateStashes()
         {
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
             var stashNames = new List<string>();

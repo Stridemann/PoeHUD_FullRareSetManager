@@ -20,7 +20,7 @@ namespace FullRareSetManager
             _plugin = plugin;
         }
 
-        public bool SwitchToTab(int tabIndex)
+        public bool SwitchToTab(int tabIndex, FullRareSetManagerSettings Settings)
         {
             var latency = (int)GameController.Game.IngameState.CurLatency;
             // We don't want to Switch to a tab that we are already on
@@ -41,9 +41,9 @@ namespace FullRareSetManager
                 // Nothing to see here officer.
             }
 
+            var _clickWindowOffset = GameController.Window.GetWindowRectangle().TopLeft;
             // We want to maximum wait 20 times the Current Latency before giving up in our while loops.
             var maxNumberOfTries = latency * 20 > 2000 ? latency * 20 / WHILE_DELAY : 2000 / WHILE_DELAY;
-            var clickWindowOffset = GameController.Window.GetWindowRectangle().TopLeft;
 
             if (tabIndex > 30)
             {
@@ -53,7 +53,6 @@ namespace FullRareSetManager
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
             try
             {
-                // Obs, this method only works with 31 stashtabs on 1920x1080, since you have to scroll at 32 tabs, and the frame stays in place.
                 var viewAllTabsButton = GameController.Game.IngameState.ServerData.StashPanel.ViewAllStashButton;
 
                 if (stashPanel.IsVisible && !viewAllTabsButton.IsVisible)
@@ -62,21 +61,13 @@ namespace FullRareSetManager
                     return SwitchToTabViaArrowKeys(tabIndex);
                 }
 
-                var parent = openLeftPanel.Children[2].Children[0].Children[1].Children[3];
-                var dropDownTabElements = parent.Children[2];
-
-                var totalStashes = GameController.Game.IngameState.ServerData.StashPanel.TotalStashes;
-                if (totalStashes > 30)
-                {
-                    dropDownTabElements = parent.Children[1];
-                }
+                var dropDownTabElements = GameController.Game.IngameState.ServerData.StashPanel.ViewAllStashPanel;
 
                 if (!dropDownTabElements.IsVisible)
                 {
                     var pos = viewAllTabsButton.GetClientRect();
-                    
-                    Mouse.SetCursorPosAndLeftClick(pos.Center + clickWindowOffset);
-
+                    Mouse.SetCursorPosAndLeftClick(pos.Center + _clickWindowOffset, Settings.ExtraDelay);
+                    Thread.Sleep(latency + Settings.ExtraDelay);
                     var brCounter = 0;
 
                     while (!dropDownTabElements.IsVisible)
@@ -91,18 +82,18 @@ namespace FullRareSetManager
                         return false;
                     }
 
-                    if (totalStashes > 30)
+                    if (GameController.Game.IngameState.ServerData.StashPanel.TotalStashes > 30)
                     {
                         // TODO:Zafaar implemented something that allows us to get in contact with the ScrollBar.
                         Mouse.VerticalScroll(true, 5);
-                        Thread.Sleep(latency + 50);
+                        Thread.Sleep(latency + Settings.ExtraDelay);
                     }
                 }
 
                 var tabPos = dropDownTabElements.Children[tabIndex].GetClientRect();
-
-                Mouse.SetCursorPosAndLeftClick(tabPos.Center + clickWindowOffset);
-                Thread.Sleep(latency);
+          
+                Mouse.SetCursorPosAndLeftClick(tabPos.Center + _clickWindowOffset, Settings.ExtraDelay);
+                Thread.Sleep(latency + Settings.ExtraDelay);
             }
             catch (Exception e)
             {
@@ -124,7 +115,7 @@ namespace FullRareSetManager
                     continue;
                 }
                 BasePlugin.LogMessage("2. Error opening stash: " + tabIndex, 5);
-                return false;
+                return true;
             } while (stash?.VisibleInventoryItems == null);
             return true;
         }
