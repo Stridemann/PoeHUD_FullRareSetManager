@@ -50,7 +50,6 @@ namespace FullRareSetManager
 
         private void ExternalUpdateStashes(object[] args)
         {
-            LogMessage("ExternalUpdateStashes", 2);
             UpdateStashes();
         }
 
