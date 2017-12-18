@@ -50,6 +50,7 @@ namespace FullRareSetManager
 
         private void ExternalUpdateStashes(object[] args)
         {
+            if (!Settings.Enable.Value) return;
             UpdateStashes();
         }
 
