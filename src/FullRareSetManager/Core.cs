@@ -471,9 +471,6 @@ namespace FullRareSetManager
             Graphics.DrawText(_drawInfoString, 15, new Vector2(posX, posY));
         }
 
-
-
-
         private void UpdateItemsSetsInfo()
         {
             _currentSetData = new CurrentSetInfo();
@@ -782,9 +779,9 @@ namespace FullRareSetManager
                 return true;
             }
 
-            if (_sData.PlayerInventory.ItemsCount == inventory.ItemCount)
+            //if (_sData.PlayerInventory.ItemsCount == inventory.ItemCount)
             {
-                return false;
+            //    return false;
             }
 
             _sData.PlayerInventory = new StashTabData();
