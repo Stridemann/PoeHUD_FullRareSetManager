@@ -51,7 +51,10 @@ namespace FullRareSetManager
         private void ExternalUpdateStashes(object[] args)
         {
             if (!Settings.Enable.Value) return;
+            Thread.Sleep(70);
             UpdateStashes();
+            UpdatePlayerInventory();
+            UpdateItemsSetsInfo();
         }
 
         public override void Initialise()
@@ -314,16 +317,34 @@ namespace FullRareSetManager
                         // Get the current visible stash tab.
                         _currentOpenedStashTab = stashPanel.VisibleStash;
 
+
+
                         var item = curPreparedItem;
                         var foundItem =
                             _currentOpenedStashTab.VisibleInventoryItems.Find(
                                 x => x.InventPosX == item.InventPosX && x.InventPosY == item.InventPosY);
+                        var curItemsCount = _currentOpenedStashTab.VisibleInventoryItems.Count;
 
                         if (foundItem != null)
                         {
+                          
                             // If we found the item.
                             Mouse.SetCursorPosAndLeftClick(foundItem.GetClientRect().Center + gameWindowPos.TopLeft, Settings.ExtraDelay);
-                            Thread.Sleep(latency + Settings.ExtraDelay);
+                            item.BInPlayerInventory = true;
+                            Thread.Sleep(latency + 100 + Settings.ExtraDelay);
+
+                            if(_currentOpenedStashTab.VisibleInventoryItems.Count == curItemsCount)
+                            {
+                                //LogError("Item was not dropped?? : " + curPreparedItem.ItemName + ", checking again...", 10);
+                                Thread.Sleep(200);
+                                
+                                if (_currentOpenedStashTab.VisibleInventoryItems.Count == curItemsCount)
+                                {
+                                    LogError("Item was not dropped after additional delay: " + curPreparedItem.ItemName, 5);
+
+                                }
+                                
+                            }
                         }
                         else
                         {
@@ -331,8 +352,11 @@ namespace FullRareSetManager
                                      $"ItemName: {item.ItemName}.\n" +
                                      $"Inventory Position: ({item.InventPosX},{item.InventPosY})", 5);
                         }
-                        
-                        UpdateStashes();
+                        //Thread.Sleep(200);
+                        if(!UpdateStashes())
+                        {
+                            LogError("There was item drop but it don't want to update stash!", 10);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -660,6 +684,7 @@ namespace FullRareSetManager
                 }
             }
         }
+        
         public bool UpdateStashes()
         {
             var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
@@ -667,8 +692,7 @@ namespace FullRareSetManager
             var needUpdateAllInfo = false;
             _currentOpenedStashTab = null;
             _currentOpenedStashTabName = "";
-
-
+            
             for (var i = 0; i < stashPanel.TotalStashes; i++)
             {
                 var stash = stashPanel.GetStashInventoryByIndex(i);
@@ -686,9 +710,10 @@ namespace FullRareSetManager
                 _currentOpenedStashTab = stash;
                 _currentOpenedStashTabName = stashName;
 
-                if (stash.ItemCount != visibleInventoryItems.Count)
+                //if (stash.ItemCount != visibleInventoryItems.Count)
                 {
-                    continue;
+                    //LogMessage("No update stash coz: ItemCount", 4);
+                    //continue;
                 }
 
                 StashTabData curStashData;
@@ -700,7 +725,7 @@ namespace FullRareSetManager
                     add = true;
                 }
 
-                if (curStashData.ItemsCount != stash.ItemCount)
+                //if (curStashData.ItemsCount != stash.ItemCount)//Temporary disabled. Trying to find a source of bug
                 {
                     curStashData.StashTabItems = new List<StashItem>();
                     needUpdateAllInfo = true;
