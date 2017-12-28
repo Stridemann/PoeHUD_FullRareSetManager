@@ -145,15 +145,29 @@ namespace FullRareSetManager.SetParts
                 invokeList[4] = Prepahe_OL;
             }
 
+            var rezults = new List<PrepareItemResult>();
             foreach (var t in invokeList)
             {
                 var result = t();
+              
 
                 if (result != null)
                 {
-                    return result;
+                    rezults.Add(result);
                 }
             }
+
+
+            if (rezults.Count > 0)
+            {
+                var inPlayerInv = rezults.Find(x => x.BInPlayerInvent);
+
+                if (inPlayerInv != null)
+                    return inPlayerInv;
+                else
+                    return rezults[0];
+            }
+
 
             return null;
         }
