@@ -35,10 +35,8 @@ namespace FullRareSetManager
         private string _drawInfoString = "";
         private DropAllToInventory _inventDrop;
 
-
         private BaseSetPart[] _itemSetTypes;
         private StashData _sData;
-
 
         public ItemDisplayData[] DisplayData;
 
@@ -196,7 +194,7 @@ namespace FullRareSetManager
                 var latency = (int) GameController.Game.IngameState.CurLatency;
                 var npcTradingWindow = GameController.Game.IngameState.UIRoot
                     .Children[1]
-                    .Children[42]
+                    .Children[47]
                     .Children[3];
 
                 if (!npcTradingWindow.IsVisible)
