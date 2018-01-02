@@ -45,7 +45,6 @@ namespace FullRareSetManager
         public Core()
         {
             PluginName = "Rare Set Manager";
-            API.SubscribePluginEvent("StashUpdate", ExternalUpdateStashes);
         }
 
         private void ExternalUpdateStashes(object[] args)
@@ -64,6 +63,7 @@ namespace FullRareSetManager
             Settings.CalcByFreeSpace.OnValueChanged += UpdateItemsSetsInfo;
 
             MenuPlugin.eMouseEvent += OnMouseEvent;
+            API.SubscribePluginEvent("StashUpdate", ExternalUpdateStashes);
         }
 
         private void SetupOrClose()
