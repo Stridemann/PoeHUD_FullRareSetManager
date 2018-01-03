@@ -73,7 +73,7 @@ namespace FullRareSetManager.Utilities
             LeftClick();
         }
 
-        private static void LeftClick()
+        public static void LeftClick()
         {
             LeftMouseDown();
             Thread.Sleep(CLICK_DELAY);
