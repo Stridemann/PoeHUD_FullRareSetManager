@@ -757,17 +757,29 @@ namespace FullRareSetManager
                 break;
             }
 
-            if (!needUpdateAllInfo)
-            {
-                return false;
-            }
 
-            foreach (var name in stashNames) //Delete stashes that doesn't exist
+            /*
+            foreach (var name in stashNames) 
             {
-                if (!_sData.StashTabs.ContainsKey(name))
+                if (!_sData.StashTabs.ContainsKey(name)) //TODO: Define: What the fuck is this?
                 {
                     _sData.StashTabs.Remove(name);
                 }
+            }
+            */
+
+            var allStashNames = stashPanel.AllStashNames;
+
+            var keyTabs = _sData.StashTabs.Keys.ToList();//Delete stashes that doesn't exist
+            foreach (var stashName in keyTabs)
+            {
+                if (!allStashNames.Contains(stashName))
+                    _sData.StashTabs.Remove(stashName);
+            }
+
+            if (!needUpdateAllInfo)
+            {
+                return false;
             }
 
             return true;

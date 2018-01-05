@@ -72,7 +72,6 @@ namespace FullRareSetManager
         public int InventPosX;
         public int InventPosY;
         public bool BInPlayerInventory;
-        //public int ItemQuality;//TODO: consider item quality in future
     }
 
 
