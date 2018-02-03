@@ -21,6 +21,7 @@ using PoeHUD.Hud.Menu;
 using PoeHUD.Poe;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Gma.System.MouseKeyHook;
 
 namespace FullRareSetManager
 {
@@ -60,9 +61,11 @@ namespace FullRareSetManager
             Settings.Enable.OnValueChanged += SetupOrClose;
             Settings.CalcByFreeSpace.OnValueChanged += UpdateItemsSetsInfo;
 
-            MenuPlugin.eMouseEvent += OnMouseEvent;
+            MenuPlugin.KeyboardMouseEvents.MouseDown += OnMouseEvent;
             API.SubscribePluginEvent("StashUpdate", ExternalUpdateStashes);
         }
+
+
 
         private void SetupOrClose()
         {
@@ -132,6 +135,7 @@ namespace FullRareSetManager
 
         public override void Render()
         {
+            if (!GameController.Game.IngameState.InGame) return;
             var needUpdate = UpdatePlayerInventory();
             var ingameState = GameController.Game.IngameState;
             var stashIsVisible = ingameState.ServerData.StashPanel.IsVisible;
@@ -820,11 +824,11 @@ namespace FullRareSetManager
         }
 
         private long CurPickItemCount = 0;
-        private void OnMouseEvent(MouseEventID eventId, Vector2 pos)
+        private void OnMouseEvent(object sender, MouseEventArgs e)
         {
             try
             {
-                if (!Settings.Enable || !GameController.Window.IsForeground() || eventId != MouseEventID.LeftButtonDown)
+                if (!Settings.Enable || !GameController.Window.IsForeground() || e.Button != MouseButtons.Left)
                 {
                     return;
                 }
@@ -873,9 +877,9 @@ namespace FullRareSetManager
 
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                LogError("OnMouseEvent error: " + e.Message, 4);
+                LogError("OnMouseEvent error: " + ex.Message, 4);
                 return;
             }
             return;
