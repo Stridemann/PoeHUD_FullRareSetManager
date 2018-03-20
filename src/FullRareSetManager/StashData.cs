@@ -33,14 +33,13 @@ namespace FullRareSetManager
         {
             try
             {
+                if (data == null) return;
                 var dataFileFullPath = plugin.PluginDirectory + "\\" + STASH_DATA_FILE;
-
                 var settingsDirName = Path.GetDirectoryName(dataFileFullPath);
                 if (!Directory.Exists(settingsDirName))
-                    if (settingsDirName != null)
-                    {
-                        Directory.CreateDirectory(settingsDirName);
-                    }
+                {
+                    Directory.CreateDirectory(settingsDirName);
+                }
 
                 using (var stream = new StreamWriter(File.Create(dataFileFullPath)))
                 {

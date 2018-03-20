@@ -59,6 +59,13 @@ namespace FullRareSetManager
         public override void Initialise()
         {
             _sData = StashData.Load(this);
+
+            if(_sData == null)
+            {
+                LogMessage("RareSetManager: Can't load cached items from file StashData.json. Creating new config. Open stash tabs for updating info.", 10);
+                _sData = new StashData();
+            }
+
             _inventDrop = new DropAllToInventory(this);
 
             DisplayData = new ItemDisplayData[8];
@@ -78,12 +85,13 @@ namespace FullRareSetManager
             API.SubscribePluginEvent("StashUpdate", ExternalUpdateStashes);
         }
 
+
         private void OnAreaChange(AreaController area)
         {
             _currentLabels.Clear();
             _currentAlerts.Clear();
         }
-        
+
         public override void Render()
         {
             if (!GameController.Game.IngameState.InGame) return;
@@ -729,11 +737,17 @@ namespace FullRareSetManager
                 }
             }
 
+            List<string> workingTabs = null;
+
+            if(Settings.OnlyAllowedStashTabs.Value)
+                workingTabs = Settings.AllowedStashTabs.Select(x => x.Name).ToList();
+            else
+                workingTabs = stashPanel.AllStashNames;       
 
             var keyTabs = _sData.StashTabs.Keys.ToList();//Delete stashes that doesn't exist
             foreach (var stashNameInUse in keyTabs)
             {
-                if (!Settings.AllowedStashTabs.Any(x => x.Name == stashNameInUse))
+                if (!workingTabs.Contains(stashNameInUse))
                 {
                     _sData.StashTabs.Remove(stashNameInUse);
                 }
@@ -942,11 +956,11 @@ namespace FullRareSetManager
         {
             base.InitializeSettingsMenu();
 
-            AllowedStashTabsRoot = new CheckboxSettingDrawer(Settings.OnlyAllowedStashTabs) { SettingName = "Allowed Stash Tabs" };
+            AllowedStashTabsRoot = new CheckboxSettingDrawer(Settings.OnlyAllowedStashTabs) { SettingName = "Allowed Stash Tabs", SettingId = GetUniqDrawerId() };
             SettingsDrawers.Add(AllowedStashTabsRoot);//Adding checkbox to settings menu drawers
 
             var addTabButton = new ButtonNode();
-            var addTabButtonDrawer = new ButtonSettingDrawer(addTabButton) { SettingName = "Add Stash Tab" };
+            var addTabButtonDrawer = new ButtonSettingDrawer(addTabButton) { SettingName = "Add Stash Tab", SettingId = GetUniqDrawerId() };
             AllowedStashTabsRoot.Children.Add(addTabButtonDrawer);
 
             addTabButton.OnPressed += delegate
@@ -965,10 +979,10 @@ namespace FullRareSetManager
         private void AddAllowedStashTabNode(StashTabNode node)
         {
             var deleteTabButton = new ButtonNode();
-            var deleteTabButtonDrawer = new ButtonSettingDrawer(deleteTabButton) { SettingName = "Delete" };
+            var deleteTabButtonDrawer = new ButtonSettingDrawer(deleteTabButton) { SettingName = "Delete", SettingId = GetUniqDrawerId() };
             AllowedStashTabsRoot.Children.Insert(AllowedStashTabsRoot.Children.Count - 1, deleteTabButtonDrawer);
 
-            var buttonSameLineDrawer = new SameLineSettingDrawer();//Delete button and stash node should be on same line
+            var buttonSameLineDrawer = new SameLineSettingDrawer() { SettingId = GetUniqDrawerId() };//Delete button and stash node should be on same line
             AllowedStashTabsRoot.Children.Insert(AllowedStashTabsRoot.Children.Count - 1, buttonSameLineDrawer);
 
             var stashNodeDrawer = new StashTabNodeSettingDrawer(node) { SettingName = "", SettingId = GetUniqDrawerId() };
@@ -977,6 +991,7 @@ namespace FullRareSetManager
 
             deleteTabButton.OnPressed += delegate
             {
+                LogMessage("Deleting: " + node.Name, 2);
                 //Delete stash node related drawers
                 AllowedStashTabsRoot.Children.Remove(deleteTabButtonDrawer);
                 AllowedStashTabsRoot.Children.Remove(buttonSameLineDrawer);
