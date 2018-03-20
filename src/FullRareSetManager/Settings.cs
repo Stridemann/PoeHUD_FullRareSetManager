@@ -1,6 +1,7 @@
 ﻿using PoeHUD.Hud.Settings;
 using PoeHUD.Plugins;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace FullRareSetManager
 {
@@ -86,5 +87,8 @@ namespace FullRareSetManager
 
         [Menu("Separate stash tabs for each item type", "Pick priority will be calculated by free space in stash tab. Free space will be calculated for each item stash tab.")]
         public ToggleNode CalcByFreeSpace { get; set; }
+
+        public ToggleNode OnlyAllowedStashTabs { get; set; } = false;
+        public List<StashTabNode> AllowedStashTabs = new List<StashTabNode>();
     }
 }
