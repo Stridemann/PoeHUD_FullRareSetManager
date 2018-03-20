@@ -70,7 +70,7 @@ namespace FullRareSetManager
         public bool BIdentified;
         public int InventPosX;
         public int InventPosY;
-        public bool BInPlayerInventory;
+        public bool BInPlayerInventory { get; set; }
     }
 
 

@@ -62,7 +62,7 @@ namespace FullRareSetManager
 
             if(_sData == null)
             {
-                LogMessage("RareSetManager: Can't load cached items from file StashData.json. Creating new config. Open stash tabs for updating info.", 10);
+                LogMessage("RareSetManager: Can't load cached items from file StashData.json. Creating new config. Open stash tabs for updating info. Tell to developer if this happen often enough.", 10);
                 _sData = new StashData();
             }
 
@@ -492,6 +492,7 @@ namespace FullRareSetManager
                 }
 
                 var setPart = _itemSetTypes[index];
+                item.BInPlayerInventory = true;
                 setPart.AddItem(item);
             }
 
@@ -510,6 +511,7 @@ namespace FullRareSetManager
                     }
 
                     var setPart = _itemSetTypes[index];
+                    item.BInPlayerInventory = false;
                     setPart.AddItem(item);
                     setPart.StashTabItemsCount = stashTabItems.Count;
                 }
@@ -724,10 +726,11 @@ namespace FullRareSetManager
                         continue;
                     }
 
-                    curStashData.StashTabItems.Add(newStashItem);
                     newStashItem.StashName = stashName;
                     newStashItem.InventPosX = invItem.InventPosX;
                     newStashItem.InventPosY = invItem.InventPosY;
+                    newStashItem.BInPlayerInventory = false;
+                    curStashData.StashTabItems.Add(newStashItem);
                 }
                 curStashData.ItemsCount = (int)stash.ItemCount;
 
@@ -774,11 +777,6 @@ namespace FullRareSetManager
                 return true;
             }
 
-            //if (_sData.PlayerInventory.ItemsCount == inventory.ItemCount)
-            {
-                //    return false;
-            }
-
             _sData.PlayerInventory = new StashTabData();
 
             var invItems = inventory.VisibleInventoryItems;
@@ -792,10 +790,10 @@ namespace FullRareSetManager
 
                     if (newAddedItem != null)
                     {
-                        _sData.PlayerInventory.StashTabItems.Add(newAddedItem);
                         newAddedItem.InventPosX = invItem.InventPosX;
                         newAddedItem.InventPosY = invItem.InventPosY;
                         newAddedItem.BInPlayerInventory = true;
+                        _sData.PlayerInventory.StashTabItems.Add(newAddedItem);
                     }
                 }
                 _sData.PlayerInventory.ItemsCount = (int)inventory.ItemCount;
@@ -991,7 +989,6 @@ namespace FullRareSetManager
 
             deleteTabButton.OnPressed += delegate
             {
-                LogMessage("Deleting: " + node.Name, 2);
                 //Delete stash node related drawers
                 AllowedStashTabsRoot.Children.Remove(deleteTabButtonDrawer);
                 AllowedStashTabsRoot.Children.Remove(buttonSameLineDrawer);

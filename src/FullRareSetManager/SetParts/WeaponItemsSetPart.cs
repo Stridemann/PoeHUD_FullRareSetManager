@@ -145,27 +145,33 @@ namespace FullRareSetManager.SetParts
                 invokeList[4] = Prepahe_OL;
             }
 
-            var rezults = new List<PrepareItemResult>();
+            var rezults = new List<Tuple<PrepareItemResult, Func<PrepareItemResult>>>();
             foreach (var t in invokeList)
             {
                 var result = t();
               
-
                 if (result != null)
                 {
-                    rezults.Add(result);
+                    var func = t;
+                    rezults.Add(new Tuple<PrepareItemResult, Func<PrepareItemResult>>(result, func));
                 }
             }
 
 
             if (rezults.Count > 0)
             {
-                var inPlayerInv = rezults.Find(x => x.BInPlayerInvent);
+                var inPlayerInv = rezults.Find(x => x.Item1.BInPlayerInvent);
 
                 if (inPlayerInv != null)
-                    return inPlayerInv;
+                {
+                    inPlayerInv.Item2();
+                    return inPlayerInv.Item1;
+                }
                 else
-                    return rezults[0];
+                {
+                    rezults[0].Item2();
+                    return rezults[0].Item1;
+                }
             }
 
 
@@ -178,16 +184,18 @@ namespace FullRareSetManager.SetParts
             {
                 return null;
             }
+            /*
             if (!TwoHandedHighLvlItems[0].BInPlayerInventory)
             {
                 TwoHandedHighLvlItems = TwoHandedHighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
                     .ToList();
             }
-
+            */
             _currentSetItems = new[]
             {
                 TwoHandedHighLvlItems[0]
             };
+
 
             return new PrepareItemResult()
             {
@@ -204,6 +212,7 @@ namespace FullRareSetManager.SetParts
                 return null;
             }
 
+            /*
             if (!OneHandedHighLvlItems[0].BInPlayerInventory && !OneHandedHighLvlItems[1].BInPlayerInventory)
             {
                 OneHandedHighLvlItems = OneHandedHighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
@@ -217,6 +226,9 @@ namespace FullRareSetManager.SetParts
                     .ToList();
                 OneHandedHighLvlItems.Insert(0, first);
             }
+            */
+
+   
 
             _currentSetItems = new[]
             {
@@ -240,6 +252,7 @@ namespace FullRareSetManager.SetParts
                 return null;
             }
 
+            /*
             if (!OneHandedHighLvlItems[0].BInPlayerInventory)
             {
                 OneHandedHighLvlItems = OneHandedHighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
@@ -251,6 +264,7 @@ namespace FullRareSetManager.SetParts
                 OneHandedLowLvlItems = OneHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
                     .ToList();
             }
+            */
 
             _currentSetItems = new[]
             {
@@ -289,12 +303,13 @@ namespace FullRareSetManager.SetParts
         {
             if (TwoHandedLowLvlItems.Count >= 1)
             {
+                /*
                 if (!TwoHandedLowLvlItems[0].BInPlayerInventory)
                 {
                     TwoHandedLowLvlItems = TwoHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
                         .ToList();
                 }
-
+                */
                 _currentSetItems = new[]
                 {
                     TwoHandedLowLvlItems[0]
@@ -317,12 +332,14 @@ namespace FullRareSetManager.SetParts
             {
                 return null;
             }
+
+            /*
             if (!OneHandedLowLvlItems[0].BInPlayerInventory && !OneHandedLowLvlItems[1].BInPlayerInventory)
             {
                 OneHandedLowLvlItems = OneHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
                     .ToList();
             }
-
+            */
 
             _currentSetItems = new[]
             {
@@ -344,8 +361,8 @@ namespace FullRareSetManager.SetParts
         {
             if (TwoHandedLowLvlItems.Count >= 1)
             {
-                TwoHandedLowLvlItems = TwoHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
-                    .ToList();
+                //TwoHandedLowLvlItems = TwoHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
+                //    .ToList();
                 _currentSetItems = new[]
                 {
                     TwoHandedLowLvlItems[0]
@@ -353,10 +370,10 @@ namespace FullRareSetManager.SetParts
             }
             else if (OneHandedHighLvlItems.Count >= 1 && OneHandedLowLvlItems.Count >= 1)
             {
-                OneHandedLowLvlItems = OneHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
-                    .ToList();
-                OneHandedHighLvlItems = OneHandedHighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
-                    .ToList();
+                //OneHandedLowLvlItems = OneHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
+                //    .ToList();
+                //OneHandedHighLvlItems = OneHandedHighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
+                //    .ToList();
 
                 _currentSetItems = new[]
                 {
@@ -366,8 +383,8 @@ namespace FullRareSetManager.SetParts
             }
             else if (OneHandedLowLvlItems.Count >= 2)
             {
-                OneHandedLowLvlItems = OneHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
-                    .ToList();
+                //OneHandedLowLvlItems = OneHandedLowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12)
+                //    .ToList();
                 _currentSetItems = new[]
                 {
                     OneHandedLowLvlItems[0],
