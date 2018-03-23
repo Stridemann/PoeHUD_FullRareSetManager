@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using PoeHUD.Hud.Menu.SettingsDrawers;
 using PoeHUD.Hud.Settings;
+using PoeHUD.Poe.EntityComponents;
 
 namespace FullRareSetManager
 {
@@ -868,6 +869,8 @@ namespace FullRareSetManager
         {
             try
             {
+                if (item == null) return null;
+
                 var mods = item?.GetComponent<Mods>();
 
                 if (mods?.ItemRarity != ItemRarity.Rare)
@@ -892,13 +895,26 @@ namespace FullRareSetManager
                     LowLvl = mods.ItemLevel < 75
                 };
 
+                if(string.IsNullOrEmpty(item.Path))
+                {
+                    LogError($"Item metadata is empty. Can be fixed by restarting the game", 10);
+                    return null;
+                }
 
+                if (Settings.IgnoreElderShaper.Value)
+                {
+                    var baseComp = item.GetComponent<Base>();
+                    if (baseComp.isElder || baseComp.isShaper)
+                        return null;
+                }
                 var bit = GameController.Files.BaseItemTypes.Translate(item.Path);
-
                 newItem.ItemClass = bit.ClassName;
                 newItem.ItemName = bit.BaseName;
-
                 newItem.ItemType = GetStashItemTypeByClassName(newItem.ItemClass);
+
+
+
+
 
                 if (newItem.ItemType != StashItemType.Undefined)
                 {
@@ -907,7 +923,7 @@ namespace FullRareSetManager
             }
             catch (Exception e)
             {
-                LogError($"Error 0x01: {e}", 0);
+                LogError($"Error in \"ProcessItem\": {e}", 10);
                 return null;
             }
 
@@ -954,7 +970,7 @@ namespace FullRareSetManager
         {
             base.InitializeSettingsMenu();
 
-            AllowedStashTabsRoot = new CheckboxSettingDrawer(Settings.OnlyAllowedStashTabs) { SettingName = "Allowed Stash Tabs", SettingId = GetUniqDrawerId() };
+            AllowedStashTabsRoot = new CheckboxSettingDrawer(Settings.OnlyAllowedStashTabs, "Allowed Stash Tabs", GetUniqDrawerId());
             SettingsDrawers.Add(AllowedStashTabsRoot);//Adding checkbox to settings menu drawers
 
             var addTabButton = new ButtonNode();
@@ -980,10 +996,10 @@ namespace FullRareSetManager
             var deleteTabButtonDrawer = new ButtonSettingDrawer(deleteTabButton) { SettingName = "Delete", SettingId = GetUniqDrawerId() };
             AllowedStashTabsRoot.Children.Insert(AllowedStashTabsRoot.Children.Count - 1, deleteTabButtonDrawer);
 
-            var buttonSameLineDrawer = new SameLineSettingDrawer() { SettingId = GetUniqDrawerId() };//Delete button and stash node should be on same line
+            var buttonSameLineDrawer = new SameLineSettingDrawer("", GetUniqDrawerId());//Delete button and stash node should be on same line
             AllowedStashTabsRoot.Children.Insert(AllowedStashTabsRoot.Children.Count - 1, buttonSameLineDrawer);
 
-            var stashNodeDrawer = new StashTabNodeSettingDrawer(node) { SettingName = "", SettingId = GetUniqDrawerId() };
+            var stashNodeDrawer = new StashTabNodeSettingDrawer(node, "", GetUniqDrawerId());
             AllowedStashTabsRoot.Children.Insert(AllowedStashTabsRoot.Children.Count - 1, stashNodeDrawer);//AllowedStashTabsRoot.Children.Count - 1, 
  
 
