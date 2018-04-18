@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using PoeHUD.Hud.Menu.SettingsDrawers;
 using PoeHUD.Hud.Settings;
-using PoeHUD.Poe.EntityComponents;
 
 namespace FullRareSetManager
 {
@@ -644,7 +643,7 @@ namespace FullRareSetManager
                     }
                     if (maxAvailableReplaceCount == 0)
                     {
-                        LogMessage("You want to make a regal set anyway? Ok.", 2);
+                        //LogMessage("You want to make a regal set anyway? Ok.", 2);
                         _currentSetData.BSetIsReady = true;
                         _currentSetData.SetType = 2;
                         return;
@@ -974,7 +973,7 @@ namespace FullRareSetManager
             SettingsDrawers.Add(AllowedStashTabsRoot);//Adding checkbox to settings menu drawers
 
             var addTabButton = new ButtonNode();
-            var addTabButtonDrawer = new ButtonSettingDrawer(addTabButton) { SettingName = "Add Stash Tab", SettingId = GetUniqDrawerId() };
+            var addTabButtonDrawer = new ButtonSettingDrawer(addTabButton, "Add Stash Tab", GetUniqDrawerId());
             AllowedStashTabsRoot.Children.Add(addTabButtonDrawer);
 
             addTabButton.OnPressed += delegate
@@ -993,7 +992,7 @@ namespace FullRareSetManager
         private void AddAllowedStashTabNode(StashTabNode node)
         {
             var deleteTabButton = new ButtonNode();
-            var deleteTabButtonDrawer = new ButtonSettingDrawer(deleteTabButton) { SettingName = "Delete", SettingId = GetUniqDrawerId() };
+            var deleteTabButtonDrawer = new ButtonSettingDrawer(deleteTabButton, "Delete", GetUniqDrawerId());
             AllowedStashTabsRoot.Children.Insert(AllowedStashTabsRoot.Children.Count - 1, deleteTabButtonDrawer);
 
             var buttonSameLineDrawer = new SameLineSettingDrawer("", GetUniqDrawerId());//Delete button and stash node should be on same line
