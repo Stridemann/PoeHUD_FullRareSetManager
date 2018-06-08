@@ -159,8 +159,7 @@ namespace FullRareSetManager
                 var latency = (int)GameController.Game.IngameState.CurLatency;
                 var npcTradingWindow = GameController.Game.IngameState.UIRoot
                     .Children[1]
-                    .Children[47]
-                    .Children[3];
+                    .Children[54];
 
                 if (!npcTradingWindow.IsVisible)
                 {
@@ -221,7 +220,7 @@ namespace FullRareSetManager
                     Keyboard.KeyUp(Keys.LControlKey);
                 }
                 Thread.Sleep(INPUT_DELAY);
-
+                /*
                 var npcOfferItems = npcTradingWindow.Children[1];
 
                 foreach (var element in npcOfferItems.Children)
@@ -250,6 +249,7 @@ namespace FullRareSetManager
                 Thread.Sleep(latency + Settings.ExtraDelay);
                 var acceptButton = npcTradingWindow.Children[5];
                 Mouse.SetCursorPos(acceptButton.GetClientRect().Center + gameWindow);
+                */
             }
             catch
             {
@@ -723,8 +723,11 @@ namespace FullRareSetManager
 
                     if (newStashItem == null)
                     {
+                        Graphics.DrawFrame(invItem.GetClientRect(), 2, Color.Red);
                         continue;
                     }
+
+    
 
                     newStashItem.StashName = stashName;
                     newStashItem.InventPosX = invItem.InventPosX;
@@ -907,6 +910,9 @@ namespace FullRareSetManager
                         return null;
                 }
                 var bit = GameController.Files.BaseItemTypes.Translate(item.Path);
+
+                if (bit == null)
+                    return null;
                 newItem.ItemClass = bit.ClassName;
                 newItem.ItemName = bit.BaseName;
                 newItem.ItemType = GetStashItemTypeByClassName(newItem.ItemClass);
