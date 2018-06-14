@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FullRareSetManager</RootNamespace>
     <AssemblyName>FullRareSetManager</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -33,30 +33,20 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gma.System.MouseKeyHook">
-      <HintPath>..\..\..\..\Gma.System.MouseKeyHook.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Gma.System.MouseKeyHook, Version=5.6.130.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\PoEHUD\src\packages\MouseKeyHook.5.6.0\lib\net40\Gma.System.MouseKeyHook.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\PoEHUD\src\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="PoeHUD">
-      <HintPath>..\..\..\..\PoeHUD.exe</HintPath>
-      <Private>False</Private>
+    <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\PoEHUD\src\packages\SharpDX.4.0.1\lib\net45\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX">
-      <HintPath>..\..\..\..\SharpDX.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="SharpDX.Direct3D9, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\PoEHUD\src\packages\SharpDX.Direct3D9.4.0.1\lib\net45\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Direct3D9">
-      <HintPath>..\..\..\..\SharpDX.Direct3D9.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics">
-      <HintPath>..\..\..\..\SharpDX.Mathematics.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="SharpDX.Mathematics, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\PoEHUD\src\packages\SharpDX.Mathematics.4.0.1\lib\net45\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -81,6 +71,15 @@
     <Compile Include="Utilities\Mouse.cs" />
     <Compile Include="Utilities\Keyboard.cs" />
     <Compile Include="Utilities\POINT.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\..\PoeHUD.csproj">
+      <Project>{e86368b2-ae1e-4489-a749-e29a0ab48f83}</Project>
+      <Name>PoeHUD</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
