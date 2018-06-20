@@ -723,11 +723,15 @@ namespace FullRareSetManager
 
                     if (newStashItem == null)
                     {
-                        Graphics.DrawFrame(invItem.GetClientRect(), 2, Color.Red);
+                        if (Settings.ShowRedRectangleAroundIgnoredItems)
+                        {
+                            Graphics.DrawFrame(invItem.GetClientRect(), 2, Color.Red);
+                        }
                         continue;
                     }
 
-    
+
+
 
                     newStashItem.StashName = stashName;
                     newStashItem.InventPosX = invItem.InventPosX;
