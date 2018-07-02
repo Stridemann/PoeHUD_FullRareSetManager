@@ -584,7 +584,7 @@ namespace FullRareSetManager
                     var drawInfo = DisplayData[i];
 
                     if (drawInfo.TotalCount == 0)
-                        drawInfo.PriorityPercent = 1;
+                        drawInfo.PriorityPercent = 0;
                     else
                     {
                         drawInfo.PriorityPercent = (float)drawInfo.TotalCount / maxSets;
