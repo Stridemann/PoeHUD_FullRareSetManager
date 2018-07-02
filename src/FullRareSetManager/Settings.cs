@@ -93,5 +93,8 @@ namespace FullRareSetManager
 
         public ToggleNode OnlyAllowedStashTabs { get; set; } = false;
         public List<StashTabNode> AllowedStashTabs = new List<StashTabNode>();
+
+        [Menu("Show Red Rectangle Around Ignored Items")]
+        public ToggleNode ShowRedRectangleAroundIgnoredItems { get; set; } = true;
     }
 }
