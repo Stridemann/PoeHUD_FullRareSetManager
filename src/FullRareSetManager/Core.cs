@@ -584,7 +584,7 @@ namespace FullRareSetManager
                     var drawInfo = DisplayData[i];
 
                     if (drawInfo.TotalCount == 0)
-                        drawInfo.PriorityPercent = 1;
+                        drawInfo.PriorityPercent = 0;
                     else
                     {
                         drawInfo.PriorityPercent = (float)drawInfo.TotalCount / maxSets;
@@ -723,11 +723,15 @@ namespace FullRareSetManager
 
                     if (newStashItem == null)
                     {
-                        Graphics.DrawFrame(invItem.GetClientRect(), 2, Color.Red);
+                        if (Settings.ShowRedRectangleAroundIgnoredItems)
+                        {
+                            Graphics.DrawFrame(invItem.GetClientRect(), 2, Color.Red);
+                        }
                         continue;
                     }
 
-    
+
+
 
                     newStashItem.StashName = stashName;
                     newStashItem.InventPosX = invItem.InventPosX;
