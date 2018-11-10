@@ -1,6 +1,7 @@
 ﻿using PoeHUD.Hud.Settings;
 using PoeHUD.Plugins;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace FullRareSetManager
 {
@@ -17,7 +18,6 @@ namespace FullRareSetManager
             PositionY = new RangeNode<float>(365.0f, 0.0f, 2000.0f);
             WeaponTypePriority = new ListNode {Value = "Two handed"};
             DropToInventoryKey = Keys.F5;
-            SellToVendor = false;
             ExtraDelay = new RangeNode<int>(50, 0, 2000);
 
             EnableBorders = false;
@@ -55,11 +55,8 @@ namespace FullRareSetManager
         [Menu("Max Collecting Sets (0 disable)", "Amount of sets you going to collect. It will display lower pick priority if amount of item are more than this value.")]
         public RangeNode<int> MaxSets { get; set; }
 
-        [Menu("Drop To Invent Key", "This hotkey is used for: selling to npc, dropping items to stash and retrieving items from stash.")]
+        [Menu("Drop To Invent Key")]
         public HotkeyNode DropToInventoryKey { get; set; }
-
-        [Menu("Sell To Vendor", "Click the trading 'Accept' button when selling a rare set to vendor, else it will just hover the button.")]
-        public ToggleNode SellToVendor { get; set; }
 
         [Menu("Extra Click Delay")]
         public RangeNode<int> ExtraDelay { get; set; }
@@ -91,6 +88,13 @@ namespace FullRareSetManager
         [Menu("Separate stash tabs for each item type", "Pick priority will be calculated by free space in stash tab. Free space will be calculated for each item stash tab.")]
         public ToggleNode CalcByFreeSpace { get; set; }
 
-        
+        [Menu("Ignore Elder/Shaper items")]
+        public ToggleNode IgnoreElderShaper { get; set; } = true;
+
+        public ToggleNode OnlyAllowedStashTabs { get; set; } = false;
+        public List<StashTabNode> AllowedStashTabs = new List<StashTabNode>();
+
+        [Menu("Show Red Rectangle Around Ignored Items")]
+        public ToggleNode ShowRedRectangleAroundIgnoredItems { get; set; } = true;
     }
 }
