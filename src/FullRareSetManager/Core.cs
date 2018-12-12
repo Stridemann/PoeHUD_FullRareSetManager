@@ -689,7 +689,7 @@ namespace FullRareSetManager
 
                 if (Settings.OnlyAllowedStashTabs.Value)
                 {
-                    if (!Settings.AllowedStashTabs.Any(x => x.Name == stashName))
+                    if (Settings.AllowedStashTabs.All(x => x.Name != stashName))
                     {
                         continue;
                     }
