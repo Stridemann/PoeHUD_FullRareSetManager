@@ -90,7 +90,7 @@ namespace FullRareSetManager
                     }
                 }
 
-                var tabPos = dropDownTabElements.Children[tabIndex].GetClientRect();
+                var tabPos = dropDownTabElements.GetChildAtIndex(2).GetChildAtIndex(tabIndex).GetClientRect();
           
                 Mouse.SetCursorPosAndLeftClick(tabPos.Center + _clickWindowOffset, Settings.ExtraDelay);
                 Thread.Sleep(latency + Settings.ExtraDelay);
@@ -123,7 +123,7 @@ namespace FullRareSetManager
         private bool SwitchToTabViaArrowKeys(int tabIndex)
         {
             var latency = (int)GameController.Game.IngameState.CurLatency;
-            var indexOfCurrentVisibleTab = GetIndexOfCurrentVisibleTab();
+            var indexOfCurrentVisibleTab = GameController.Game.IngameState.ServerData.StashPanel.IndexVisibleStash;// GetIndexOfCurrentVisibleTab();
             var difference = tabIndex - indexOfCurrentVisibleTab;
             var negative = difference < 0;
 
