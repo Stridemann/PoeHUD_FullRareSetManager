@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows.Forms;
 using FullRareSetManager.Utilities;
 using PoeHUD.Controllers;
+using SharpDX;
 
 namespace FullRareSetManager
 {
@@ -90,8 +91,30 @@ namespace FullRareSetManager
                     }
                 }
 
-                var tabPos = dropDownTabElements.GetChildAtIndex(2).GetChildAtIndex(tabIndex).GetClientRect();
-          
+
+                // Dropdown menu have the following children: 0, 1, 2.
+                // Where:
+                // 0 is the icon (fx. chaos orb).
+                // 1 is the name of the tab.
+                // 2 is the slider.
+                var totalStashes = GameController.Game.IngameState.ServerData.StashPanel.TotalStashes;
+                var slider = dropDownTabElements.Children[1].ChildCount == totalStashes;
+                var noSlider = dropDownTabElements.Children[2].ChildCount == totalStashes;
+                RectangleF tabPos;
+                if (slider)
+                {
+                    tabPos = dropDownTabElements.GetChildAtIndex(1).GetChildAtIndex(tabIndex).GetClientRect();
+                }
+                else if (noSlider)
+                {
+                    tabPos = dropDownTabElements.GetChildAtIndex(2).GetChildAtIndex(tabIndex).GetClientRect();
+                }
+                else
+                {
+                    BasePlugin.LogError("Couldn't detect slider/non-slider, contact Preaches [Stashie]", 3);
+                    return false;
+                }
+
                 Mouse.SetCursorPosAndLeftClick(tabPos.Center + _clickWindowOffset, Settings.ExtraDelay);
                 Thread.Sleep(latency + Settings.ExtraDelay);
             }
@@ -134,30 +157,6 @@ namespace FullRareSetManager
             }
 
             return true;
-        }
-
-        private int GetIndexOfCurrentVisibleTab()
-        {
-            var openLeftPanel = GameController.Game.IngameState.IngameUi.OpenLeftPanel;
-            var totalStashes = GameController.Game.IngameState.ServerData.StashPanel.TotalStashes;
-
-            for (var i = 0; i < totalStashes; i++)
-            {
-                var stashTabToGoTo = openLeftPanel
-                    .Children[2]
-                    .Children[0]
-                    .Children[1]
-                    .Children[1]
-                    .Children[i]
-                    .Children[0];
-
-                if (stashTabToGoTo.IsVisible)
-                {
-                    return i;
-                }
-            }
-
-            return -1;
         }
     }
 }
