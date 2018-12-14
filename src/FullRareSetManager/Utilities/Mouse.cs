@@ -41,7 +41,7 @@ namespace FullRareSetManager.Utilities
 
         public static void SetCursorPos(Vector2 pos)
         {
-            SetCursorPos((int)pos.X, (int)pos.Y);
+            SetCursorPos((int) pos.X, (int) pos.Y);
         }
 
         public static void SetCursorPos(POINT pos)
@@ -57,8 +57,8 @@ namespace FullRareSetManager.Utilities
         */
         public static void SetCursorPosAndLeftClick(Vector2 coords, int extraDelay)
         {
-            var posX = (int)coords.X;
-            var posY = (int)coords.Y;
+            var posX = (int) coords.X;
+            var posY = (int) coords.Y;
             SetCursorPos(posX, posY);
             Thread.Sleep(MOVEMENT_DELAY + extraDelay);
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
@@ -66,7 +66,7 @@ namespace FullRareSetManager.Utilities
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
 
-        public static void SetCursorPosAndLeftClick(int xpos, int ypos)
+        public static void SetCursorPosAndLeftClick(int xpos, int ypos, int extraDelay)
         {
             SetCursorPos(xpos, ypos);
             Thread.Sleep(MOVEMENT_DELAY);
