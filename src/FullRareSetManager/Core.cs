@@ -157,6 +157,7 @@ namespace FullRareSetManager
                 // Sell to vendor.
                 var gameWindow = GameController.Window.GetWindowRectangle().TopLeft;
                 var latency = (int) GameController.Game.IngameState.CurLatency;
+                var cursorPosPreMoving = Mouse.GetCursorPosition();
                 var npcTradingWindow = GameController.Game.IngameState.UIRoot
                     .Children[1]
                     .Children[70]
@@ -239,6 +240,8 @@ namespace FullRareSetManager
                 {
                     Mouse.SetCursorPosAndLeftClick(acceptButton.GetClientRect().Center + gameWindow,
                         Settings.ExtraDelay.Value);
+                    Thread.Sleep(INPUT_DELAY);
+                    Mouse.SetCursorPos(cursorPosPreMoving);
                 }
                 else
                 {
