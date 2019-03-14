@@ -68,10 +68,11 @@ namespace FullRareSetManager
                 {
                     var pos = viewAllTabsButton.GetClientRect();
                     Mouse.SetCursorPosAndLeftClick(pos.Center + _clickWindowOffset, Settings.ExtraDelay);
+                    Thread.Sleep(200);
                     Thread.Sleep(latency + Settings.ExtraDelay);
                     var brCounter = 0;
 
-                    while (!dropDownTabElements.IsVisible)
+                    while (1 == 2 && !dropDownTabElements.IsVisible)
                     {
                         Thread.Sleep(WHILE_DELAY);
 

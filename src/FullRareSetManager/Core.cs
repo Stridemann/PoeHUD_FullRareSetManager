@@ -1084,8 +1084,8 @@ namespace FullRareSetManager
         private readonly Dictionary<EntityWrapper, ItemDisplayData> _currentAlerts =
             new Dictionary<EntityWrapper, ItemDisplayData>();
 
-        private Dictionary<long, ItemsOnGroundLabelElement> _currentLabels =
-            new Dictionary<long, ItemsOnGroundLabelElement>();
+        private Dictionary<long, LabelOnGround> _currentLabels =
+            new Dictionary<long, LabelOnGround>();
 
         private void RenderLabels()
         {
@@ -1175,9 +1175,8 @@ namespace FullRareSetManager
         private bool DrawBorder(long entityAddress, ItemDisplayData data)
         {
             var ui = GameController.Game.IngameState.IngameUi;
-            ItemsOnGroundLabelElement entityLabel;
             var shouldUpdate = false;
-            if (_currentLabels.TryGetValue(entityAddress, out entityLabel))
+            if (_currentLabels.TryGetValue(entityAddress, out var entityLabel))
             {
                 if (!entityLabel.IsVisible) return shouldUpdate;
 
