@@ -71,7 +71,7 @@ namespace FullRareSetManager
                     Thread.Sleep(latency + Settings.ExtraDelay);
                     var brCounter = 0;
 
-                    while (!dropDownTabElements.IsVisible)
+                    while (1 == 2 && !dropDownTabElements.IsVisible)
                     {
                         Thread.Sleep(WHILE_DELAY);
 

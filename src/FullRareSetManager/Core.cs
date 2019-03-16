@@ -160,7 +160,7 @@ namespace FullRareSetManager
                 var cursorPosPreMoving = Mouse.GetCursorPosition();
                 var npcTradingWindow = GameController.Game.IngameState.UIRoot
                     .Children[1]
-                    .Children[70]
+                    .Children[73]
                     .Children[3];
 
                 if (!npcTradingWindow.IsVisible)
@@ -174,9 +174,11 @@ namespace FullRareSetManager
                 const int uiButtonsCount = 2;
                 LogMessage($"Player has put in {playerOfferItems.ChildCount - uiButtonsCount} in the trading window.",
                     3);
+                LogMessage($"playerOfferItems.Childcount == {playerOfferItems.ChildCount}",
+                    3);
                 if (playerOfferItems.ChildCount < setItemsCount + uiButtonsCount)
                 {
-                    for (var i = 0; i < 8; i++)
+                    for (var i = 0; i < setItemsCount - 1; i++)
                     {
                         var itemType = _itemSetTypes[i];
                         var items = itemType.GetPreparedItems();
@@ -1087,8 +1089,8 @@ namespace FullRareSetManager
         private readonly Dictionary<EntityWrapper, ItemDisplayData> _currentAlerts =
             new Dictionary<EntityWrapper, ItemDisplayData>();
 
-        private Dictionary<long, ItemsOnGroundLabelElement> _currentLabels =
-            new Dictionary<long, ItemsOnGroundLabelElement>();
+        private Dictionary<long, LabelOnGround> _currentLabels =
+            new Dictionary<long, LabelOnGround>();
 
         private void RenderLabels()
         {
@@ -1178,9 +1180,8 @@ namespace FullRareSetManager
         private bool DrawBorder(long entityAddress, ItemDisplayData data)
         {
             var ui = GameController.Game.IngameState.IngameUi;
-            ItemsOnGroundLabelElement entityLabel;
             var shouldUpdate = false;
-            if (_currentLabels.TryGetValue(entityAddress, out entityLabel))
+            if (_currentLabels.TryGetValue(entityAddress, out var entityLabel))
             {
                 if (!entityLabel.IsVisible) return shouldUpdate;
 
