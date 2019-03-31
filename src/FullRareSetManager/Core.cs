@@ -159,7 +159,7 @@ namespace FullRareSetManager
                 var latency = (int) GameController.Game.IngameState.CurLatency;
                 var npcTradingWindow = GameController.Game.IngameState.UIRoot
                     .Children[1]
-                    .Children[70]
+                    .Children[74]
                     .Children[3];
 
                 if (!npcTradingWindow.IsVisible)
