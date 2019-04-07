@@ -35,6 +35,10 @@ namespace FullRareSetManager
             AutoSell = true;
         }
 
+        [Menu("", "Registering after using DropToInventoryKey to NPC trade inventory")]
+        public TextNode SetsAmountStatisticsText { get; set; } = "Total sets sold to vendor: N/A";
+        public int SetsAmountStatistics { get; set; }
+
         [Menu("Position X")] public RangeNode<float> PositionX { get; set; }
         [Menu("Position Y")] public RangeNode<float> PositionY { get; set; }
 
@@ -53,7 +57,7 @@ namespace FullRareSetManager
             "Amount of sets you going to collect. It will display lower pick priority if amount of item are more than this value.")]
         public RangeNode<int> MaxSets { get; set; }
 
-        [Menu("Drop To Invent Key")] public HotkeyNode DropToInventoryKey { get; set; }
+        [Menu("Drop To Invent Key", "It will also drop items to NPC trade window inventory")] public HotkeyNode DropToInventoryKey { get; set; }
 
         [Menu("Extra Click Delay")] public RangeNode<int> ExtraDelay { get; set; }
 

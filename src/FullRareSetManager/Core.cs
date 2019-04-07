@@ -235,6 +235,9 @@ namespace FullRareSetManager
 
                 Thread.Sleep(latency + Settings.ExtraDelay);
                 var acceptButton = npcTradingWindow.Children[5];
+                Settings.SetsAmountStatistics++;
+                Settings.SetsAmountStatisticsText = $"Total sets sold to vendor: {Settings.SetsAmountStatistics}";
+
                 if (Settings.AutoSell.Value)
                 {
                     Mouse.SetCursorPosAndLeftClick(acceptButton.GetClientRect().Center + gameWindow,
