@@ -20,7 +20,7 @@ namespace FullRareSetManager.SetParts
         {
             if (item.ItemType == StashItemType.TwoHanded)
             {
-                if (item.LowLvl)
+                if (item.itemlvl < 75)
                 {
                     TwoHandedLowLvlItems.Add(item);
                 }
@@ -31,7 +31,7 @@ namespace FullRareSetManager.SetParts
             }
             else
             {
-                if (item.LowLvl)
+                if (item.itemlvl < 75)
                 {
                     OneHandedLowLvlItems.Add(item);
                 }
@@ -415,7 +415,7 @@ namespace FullRareSetManager.SetParts
 
         private void RemoveItem(StashItem item)
         {
-            if (item.LowLvl)
+            if (item.itemlvl < 75)
             {
                 TwoHandedLowLvlItems.Remove(item);
                 OneHandedLowLvlItems.Remove(item);

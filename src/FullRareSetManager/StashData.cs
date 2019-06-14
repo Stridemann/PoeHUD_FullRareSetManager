@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using PoeHUD.Poe.Elements;
+using PoeHUD.Poe.RemoteMemoryObjects;
 
 namespace FullRareSetManager
 {
@@ -57,6 +59,7 @@ namespace FullRareSetManager
     public class StashTabData
     {
         public int ItemsCount;
+        //public InventoryTypeE Stashtype;
         public List<StashItem> StashTabItems = new List<StashItem>();
     }
 
@@ -66,7 +69,7 @@ namespace FullRareSetManager
         public StashItemType ItemType;
         public string ItemClass;
         public string ItemName;
-        public bool LowLvl;
+        public int itemlvl;
         public bool BIdentified;
         public int InventPosX;
         public int InventPosY;

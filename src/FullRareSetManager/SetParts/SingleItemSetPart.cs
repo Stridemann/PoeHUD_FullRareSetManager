@@ -14,7 +14,7 @@ namespace FullRareSetManager.SetParts
 
         public override void AddItem(StashItem item)
         {
-            if (item.LowLvl)
+            if (item.itemlvl < 75)
             {
                 LowLvlItems.Add(item);
             }
@@ -149,7 +149,7 @@ namespace FullRareSetManager.SetParts
 
         public override void RemovePreparedItems()
         {
-            if (_currentSetItem.LowLvl)
+            if (_currentSetItem.itemlvl < 75)
             {
                 LowLvlItems.Remove(_currentSetItem);
             }

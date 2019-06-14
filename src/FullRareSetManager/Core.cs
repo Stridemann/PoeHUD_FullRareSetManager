@@ -143,11 +143,18 @@
                         _bDropAllItems = true;
                     }
                 }
-
                 SellSetToVendor();
             }
         }
+        /*
+        public void OpenNpcTradewindow(Element merchantMenu)
+        {
+            var gameWindow = GameController.Window.GetWindowRectangle().TopLeft;
+            var sellItemsButton = merchantMenu.Children[0].Children[2].Children[23];
 
+            Mouse.SetCursorPosAndLeftClick(sellItemsButton.GetClientRect().Center + gameWindow, Settings.ExtraDelay);
+        }
+        */
         public void SellSetToVendor(int callCount = 1)
         {
             try
@@ -160,11 +167,13 @@
                     .Children[1]
                     .Children[74]
                     .Children[3];
-
+                
                 if (!npcTradingWindow.IsVisible)
                 {
                     // The vendor sell window is not open, but is in memory (it would've went straigth to catch if that wasn't the case).
-                    LogMessage("Error: npcTradingWindow is not visible (opened)!", 5);
+                    //LogMessage("Error: npcTradingWindow is not visible (opened)!", 5);
+                    LogMessage("Error: Merchant Window isn't open", 10);
+
                 }
 
                 var playerOfferItems = npcTradingWindow.Children[0];
@@ -256,10 +265,30 @@
             }
             catch
             {
-                // We are not talking to a vendor.
-                LogMessage("We hit catch!", 3);
-                Keyboard.KeyUp(Keys.LControlKey);
-                Thread.Sleep(INPUT_DELAY);
+                try
+                {
+                    var merchantMenu = GameController.Game.IngameState.UIRoot.
+                     Children[1].
+                     Children[18].
+                     Children[6];
+                    if (merchantMenu.IsVisible)
+                    {
+                        var gameWindow = GameController.Window.GetWindowRectangle().TopLeft;
+                        var sellItemsButton = merchantMenu.Children[0].Children[2].Children[20];
+
+                        Mouse.SetCursorPosAndLeftClick(sellItemsButton.GetClientRect().Center + gameWindow, Settings.ExtraDelay);
+                        SellSetToVendor();
+
+                    }
+                }
+                catch
+                {
+                    LogMessage("We hit catch!", 5);
+                    Thread.Sleep(INPUT_DELAY);
+                }
+                
+                
+                
             }
         }
 
@@ -423,7 +452,7 @@
 
                                 Graphics.DrawText(
                                     curPreparedItem.StashName + " (" + curPreparedItem.ItemName + ") " +
-                                    (curPreparedItem.LowLvl ? "L" : "H"), 15, new Vector2(drawPosX, drawPosY), color);
+                                    (curPreparedItem.itemlvl < 75 ? "L" : "H"), 15, new Vector2(drawPosX, drawPosY), color);
                                 drawPosY += 20;
                             }
                         }
@@ -933,7 +962,7 @@
                 var newItem = new StashItem
                 {
                     BIdentified = bIdentified,
-                    LowLvl = mods.ItemLevel < 75
+                    itemlvl = mods.ItemLevel
                 };
 
                 if (string.IsNullOrEmpty(item.Path))
