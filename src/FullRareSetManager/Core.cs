@@ -163,19 +163,36 @@
                 var gameWindow = GameController.Window.GetWindowRectangle().TopLeft;
                 var latency = (int)GameController.Game.IngameState.CurLatency;
                 var cursorPosPreMoving = Mouse.GetCursorPosition();
+                var npcTradingWindowRoot = GameController.Game.IngameState.UIRoot
+                    .Children[1]
+                    .Children[74];
+
+                if (npcTradingWindowRoot.ChildCount != 4)
+                {
+                    var merchantMenu = GameController.Game.IngameState.UIRoot.
+                     Children[1].
+                     Children[18].
+                     Children[6];
+                    // The vendor sell window is not open, but is in memory (it would've went straigth to catch if that wasn't the case).
+                    try
+                    {   
+                        if (merchantMenu.IsVisible)
+                        {
+                            var sellItemsButton = merchantMenu.Children[0].Children[2].Children[20];
+                            //opening npcTradinWindow
+                            Mouse.SetCursorPosAndLeftClick(sellItemsButton.GetClientRect().Center + gameWindow, Settings.ExtraDelay);
+                        }
+                    }
+                    catch
+                    {
+                        LogMessage("Error: Merchant Window couldn't be opened", 5);
+                    }
+                    //LogMessage("Error: Merchant Window isn't open", 10);
+                }
                 var npcTradingWindow = GameController.Game.IngameState.UIRoot
                     .Children[1]
                     .Children[74]
                     .Children[3];
-                
-                if (!npcTradingWindow.IsVisible)
-                {
-                    // The vendor sell window is not open, but is in memory (it would've went straigth to catch if that wasn't the case).
-                    //LogMessage("Error: npcTradingWindow is not visible (opened)!", 5);
-                    LogMessage("Error: Merchant Window isn't open", 10);
-
-                }
-
                 var playerOfferItems = npcTradingWindow.Children[0];
                 const int setItemsCount = 9;
                 const int uiButtonsCount = 2;
@@ -265,30 +282,8 @@
             }
             catch
             {
-                try
-                {
-                    var merchantMenu = GameController.Game.IngameState.UIRoot.
-                     Children[1].
-                     Children[18].
-                     Children[6];
-                    if (merchantMenu.IsVisible)
-                    {
-                        var gameWindow = GameController.Window.GetWindowRectangle().TopLeft;
-                        var sellItemsButton = merchantMenu.Children[0].Children[2].Children[20];
-
-                        Mouse.SetCursorPosAndLeftClick(sellItemsButton.GetClientRect().Center + gameWindow, Settings.ExtraDelay);
-                        SellSetToVendor();
-
-                    }
-                }
-                catch
-                {
-                    LogMessage("We hit catch!", 5);
-                    Thread.Sleep(INPUT_DELAY);
-                }
-                
-                
-                
+                LogMessage("We hit catch!", 5);
+                Thread.Sleep(INPUT_DELAY);
             }
         }
 
