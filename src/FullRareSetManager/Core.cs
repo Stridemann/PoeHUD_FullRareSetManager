@@ -178,16 +178,35 @@
                     {   
                         if (merchantMenu.IsVisible)
                         {
-                            var sellItemsButton = merchantMenu.Children[0].Children[2].Children[20];
-                            //opening npcTradinWindow
-                            Mouse.SetCursorPosAndLeftClick(sellItemsButton.GetClientRect().Center + gameWindow, Settings.ExtraDelay);
+                            var merchantContextMenu = merchantMenu.Children[0].Children[2];
+                            var SellItemsButton = merchantContextMenu.Children[0];
+
+                            for (int i = 2; i < (int)merchantContextMenu.ChildCount; ++i)
+                            {
+                                string text;
+                                try
+                                {
+                                   text = merchantContextMenu.Children[i].Children[0].Text;
+                                }
+                                catch
+                                {
+                                    continue;
+                                }
+                                
+                                if (merchantContextMenu.Children[i].Children[0].Text == "Sell Items")
+                                {
+                                    SellItemsButton = merchantContextMenu.Children[i];
+                                    break;
+                                }
+                            }
+                            //opening 
+                            Mouse.SetCursorPosAndLeftClick(SellItemsButton.GetClientRect().Center + gameWindow, extraDelay: Settings.ExtraDelay);
                         }
                     }
                     catch
                     {
                         LogMessage("Error: Merchant Window couldn't be opened", 5);
                     }
-                    //LogMessage("Error: Merchant Window isn't open", 10);
                 }
                 var npcTradingWindow = GameController.Game.IngameState.UIRoot
                     .Children[1]
