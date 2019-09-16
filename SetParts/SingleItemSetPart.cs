@@ -1,34 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SharpDX;
 
 namespace FullRareSetManager.SetParts
 {
     public class SingleItemSetPart : BaseSetPart
     {
+        private StashItem _currentSetItem;
+        public List<StashItem> HighLvlItems = new List<StashItem>();
+        public List<StashItem> LowLvlItems = new List<StashItem>();
+
         public SingleItemSetPart(string partName) : base(partName)
         {
         }
 
-        public List<StashItem> HighLvlItems = new List<StashItem>();
-        public List<StashItem> LowLvlItems = new List<StashItem>();
-
         public override void AddItem(StashItem item)
         {
             if (item.LowLvl)
-            {
                 LowLvlItems.Add(item);
-            }
             else
-            {
                 HighLvlItems.Add(item);
-            }
         }
 
         public override int TotalSetsCount()
         {
             return HighLvlItems.Count + LowLvlItems.Count;
         }
-
 
         public override int LowSetsCount()
         {
@@ -45,9 +42,6 @@ namespace FullRareSetManager.SetParts
             return PartName + ": " + TotalSetsCount() + " (" + LowSetsCount() + "L / " + HighSetsCount() + "H)";
         }
 
-
-        private StashItem _currentSetItem;
-
         public override PrepareItemResult PrepareItemForSet(FullRareSetManagerSettings settings)
         {
             var lowFirst = LowLvlItems.Count > 0 && LowLvlItems[0].BInPlayerInventory;
@@ -55,30 +49,26 @@ namespace FullRareSetManager.SetParts
             if (lowFirst)
             {
                 var result = LowProcess();
+
                 if (result != null)
-                {
                     return result;
-                }
 
                 result = HighProcess();
+
                 if (result != null)
-                {
                     return result;
-                }
             }
             else
             {
                 var result = HighProcess();
+
                 if (result != null)
-                {
                     return result;
-                }
 
                 result = LowProcess();
+
                 if (result != null)
-                {
                     return result;
-                }
             }
 
             return null;
@@ -87,18 +77,14 @@ namespace FullRareSetManager.SetParts
         private PrepareItemResult HighProcess()
         {
             if (HighLvlItems.Count <= 0)
-            {
                 return null;
-            }
 
             if (!HighLvlItems[0].BInPlayerInventory)
-            {
                 HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-            }
 
             _currentSetItem = HighLvlItems[0];
 
-            return new PrepareItemResult()
+            return new PrepareItemResult
             {
                 AllowedReplacesCount = LowLvlItems.Count,
                 LowSet = false,
@@ -109,18 +95,14 @@ namespace FullRareSetManager.SetParts
         private PrepareItemResult LowProcess()
         {
             if (LowLvlItems.Count <= 0)
-            {
                 return null;
-            }
 
             if (!LowLvlItems[0].BInPlayerInventory)
-            {
                 LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-            }
 
             _currentSetItem = LowLvlItems[0];
 
-            return new PrepareItemResult()
+            return new PrepareItemResult
             {
                 AllowedReplacesCount = LowLvlItems.Count - 1,
                 LowSet = true,
@@ -135,11 +117,8 @@ namespace FullRareSetManager.SetParts
                 LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
                 _currentSetItem = LowLvlItems[0];
             }
-            else
-            {
-                PoeHUD.DebugPlug.DebugPlugin.LogMsg(
-                    "Something goes wrong: Can't do low lvl item replace on " + PartName + "!", 10, SharpDX.Color.Red);
-            }
+            //else
+                //DebugPlugin.LogMsg("Something goes wrong: Can't do low lvl item replace on " + PartName + "!", 10, Color.Red);//TODO
         }
 
         public override StashItem[] GetPreparedItems()
@@ -150,13 +129,9 @@ namespace FullRareSetManager.SetParts
         public override void RemovePreparedItems()
         {
             if (_currentSetItem.LowLvl)
-            {
                 LowLvlItems.Remove(_currentSetItem);
-            }
             else
-            {
                 HighLvlItems.Remove(_currentSetItem);
-            }
         }
 
         public override int PlayerInventItemsCount()

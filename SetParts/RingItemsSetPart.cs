@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using SharpDX;
 
 namespace FullRareSetManager.SetParts
 {
     public class RingItemsSetPart : BaseSetPart
     {
+        private StashItem[] _currentSetItems;
+        public List<StashItem> HighLvlItems = new List<StashItem>();
+        public List<StashItem> LowLvlItems = new List<StashItem>();
+
         public RingItemsSetPart(string partName) : base(partName)
         {
         }
 
-        public List<StashItem> HighLvlItems = new List<StashItem>();
-        public List<StashItem> LowLvlItems = new List<StashItem>();
-
-
         public override void AddItem(StashItem item)
         {
             if (item.LowLvl)
-            {
                 LowLvlItems.Add(item);
-            }
             else
-            {
                 HighLvlItems.Add(item);
-            }
         }
 
         public override int TotalSetsCount()
@@ -31,15 +27,13 @@ namespace FullRareSetManager.SetParts
             return (HighLvlItems.Count + LowLvlItems.Count) / 2;
         }
 
-
         public override int LowSetsCount()
         {
             var oneHandedLeft = LowLvlItems.Count - HighLvlItems.Count; //High and low together
 
             if (oneHandedLeft <= 0)
-            {
                 return LowLvlItems.Count;
-            }
+
             return HighLvlItems.Count + oneHandedLeft / 2; //(High & low) + (Low / 2)
         }
 
@@ -53,9 +47,6 @@ namespace FullRareSetManager.SetParts
             return PartName + ": " + TotalSetsCount() + " (" + LowSetsCount() + "L / " + HighSetsCount() + "H)";
         }
 
-
-        private StashItem[] _currentSetItems;
-
         public override PrepareItemResult PrepareItemForSet(FullRareSetManagerSettings settings)
         {
             var anyHighInInvent = HighLvlItems.Count >= 1 && HighLvlItems[0].BInPlayerInventory;
@@ -68,16 +59,19 @@ namespace FullRareSetManager.SetParts
                     HighLvlItems[0],
                     LowLvlItems[0]
                 };
-                return new PrepareItemResult()
+
+                return new PrepareItemResult
                 {
                     AllowedReplacesCount = LowLvlItems.Count - 1,
                     LowSet = true,
                     BInPlayerInvent = true
                 };
             }
+
             if (anyHighInInvent)
             {
                 var allHighInInvent = HighLvlItems.Count >= 2 && HighLvlItems[1].BInPlayerInventory;
+
                 if (allHighInInvent)
                 {
                     _currentSetItems = new[]
@@ -85,33 +79,29 @@ namespace FullRareSetManager.SetParts
                         HighLvlItems[0],
                         HighLvlItems[1]
                     };
-                    return new PrepareItemResult()
+
+                    return new PrepareItemResult
                     {
                         AllowedReplacesCount = LowLvlItems.Count,
                         LowSet = false,
                         BInPlayerInvent = true
                     };
                 }
-                else
-                {
-                    var result = PrepareHigh();
 
-                    if (result != null)
-                    {
-                        return result;
-                    }
+                var result = PrepareHigh();
 
-                    result = PrepareMixedHl();
+                if (result != null)
+                    return result;
 
-                    if (result != null)
-                    {
-                        return result;
-                    }
-                }
+                result = PrepareMixedHl();
+
+                if (result != null)
+                    return result;
             }
             else if (anyLowInInvent)
             {
                 var allLowInInvent = LowLvlItems.Count >= 2 && LowLvlItems[1].BInPlayerInventory;
+
                 if (allLowInInvent)
                 {
                     _currentSetItems = new[]
@@ -120,45 +110,35 @@ namespace FullRareSetManager.SetParts
                         LowLvlItems[1]
                     };
 
-                    return new PrepareItemResult()
+                    return new PrepareItemResult
                     {
                         AllowedReplacesCount = LowLvlItems.Count - 2,
                         LowSet = true,
                         BInPlayerInvent = true
                     };
                 }
-                else
-                {
-                    var result = PrepareMixedHl() ?? PrepareLow();
 
-                    if (result != null)
-                    {
-                        return result;
-                    }
-                }
+                var result = PrepareMixedHl() ?? PrepareLow();
+
+                if (result != null)
+                    return result;
             }
             else
             {
                 var result = PrepareHigh();
 
                 if (result != null)
-                {
                     return result;
-                }
 
                 result = PrepareMixedHl();
 
                 if (result != null)
-                {
                     return result;
-                }
 
                 result = PrepareLow();
 
                 if (result != null)
-                {
                     return result;
-                }
             }
 
             return new PrepareItemResult(); //Code should never get here
@@ -167,17 +147,12 @@ namespace FullRareSetManager.SetParts
         private PrepareItemResult PrepareHigh()
         {
             if (HighLvlItems.Count < 2)
-            {
                 return null;
-            }
 
             var inPlayerInvent = HighLvlItems[0].BInPlayerInventory || HighLvlItems[1].BInPlayerInventory;
 
             if (!inPlayerInvent)
-            {
                 HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-            }
-
 
             _currentSetItems = new[]
             {
@@ -185,8 +160,7 @@ namespace FullRareSetManager.SetParts
                 HighLvlItems[1]
             };
 
-
-            return new PrepareItemResult()
+            return new PrepareItemResult
             {
                 AllowedReplacesCount = LowLvlItems.Count,
                 LowSet = false,
@@ -197,9 +171,7 @@ namespace FullRareSetManager.SetParts
         private PrepareItemResult PrepareMixedHl()
         {
             if (HighLvlItems.Count < 1 || LowLvlItems.Count < 1)
-            {
                 return null;
-            }
 
             var inPlayerInvent = HighLvlItems[0].BInPlayerInventory;
 
@@ -210,9 +182,7 @@ namespace FullRareSetManager.SetParts
                 inPlayerInvent = LowLvlItems.Count > 1 && LowLvlItems[1].BInPlayerInventory;
 
                 if (!inPlayerInvent)
-                {
                     HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-                }
             }
 
             _currentSetItems = new[]
@@ -221,7 +191,7 @@ namespace FullRareSetManager.SetParts
                 LowLvlItems[0]
             };
 
-            return new PrepareItemResult()
+            return new PrepareItemResult
             {
                 AllowedReplacesCount = LowLvlItems.Count - 1,
                 LowSet = true,
@@ -232,16 +202,12 @@ namespace FullRareSetManager.SetParts
         private PrepareItemResult PrepareLow()
         {
             if (LowLvlItems.Count < 2)
-            {
                 return null;
-            }
 
             var inPlayerInvent = LowLvlItems[0].BInPlayerInventory || LowLvlItems[1].BInPlayerInventory;
 
             if (!inPlayerInvent)
-            {
                 LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-            }
 
             _currentSetItems = new[]
             {
@@ -249,7 +215,7 @@ namespace FullRareSetManager.SetParts
                 LowLvlItems[1]
             };
 
-            return new PrepareItemResult()
+            return new PrepareItemResult
             {
                 AllowedReplacesCount = LowLvlItems.Count - 2,
                 LowSet = true,
@@ -257,20 +223,15 @@ namespace FullRareSetManager.SetParts
             };
         }
 
-
         public override void DoLowItemReplace()
         {
             if (HighLvlItems.Count >= 1 && LowLvlItems.Count >= 1)
             {
                 if (!LowLvlItems[0].BInPlayerInventory)
-                {
                     LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-                }
 
                 if (!HighLvlItems[0].BInPlayerInventory)
-                {
                     HighLvlItems = HighLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-                }
 
                 _currentSetItems = new[]
                 {
@@ -281,9 +242,7 @@ namespace FullRareSetManager.SetParts
             else if (LowLvlItems.Count >= 2)
             {
                 if (!LowLvlItems[0].BInPlayerInventory)
-                {
                     LowLvlItems = LowLvlItems.OrderByDescending(x => x.InventPosX + x.InventPosY * 12).ToList();
-                }
 
                 _currentSetItems = new[]
                 {
@@ -291,11 +250,8 @@ namespace FullRareSetManager.SetParts
                     LowLvlItems[1]
                 };
             }
-            else
-            {
-                PoeHUD.DebugPlug.DebugPlugin.LogMsg("Something goes wrong: Can't do low lvl item replace on rings!", 10,
-                    SharpDX.Color.Red);
-            }
+            //else
+                //DebugPlugin.LogMsg("Something goes wrong: Can't do low lvl item replace on rings!", 10, Color.Red);//TODO
         }
 
         public override StashItem[] GetPreparedItems()
@@ -312,19 +268,15 @@ namespace FullRareSetManager.SetParts
         private void RemoveItem(StashItem item)
         {
             if (item.LowLvl)
-            {
                 LowLvlItems.Remove(item);
-            }
             else
-            {
                 HighLvlItems.Remove(item);
-            }
         }
 
         public override int PlayerInventItemsCount()
         {
-            return 
-                HighLvlItems.Count(x => x.BInPlayerInventory) + 
+            return
+                HighLvlItems.Count(x => x.BInPlayerInventory) +
                 LowLvlItems.Count(x => x.BInPlayerInventory);
         }
     }

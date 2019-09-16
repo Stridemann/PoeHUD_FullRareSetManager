@@ -2,12 +2,15 @@
 {
     public abstract class BaseSetPart
     {
+        public int ItemCellsSize = 1;
+        public string PartName;
+        public int StashTabItemsCount = 0;
+
         protected BaseSetPart(string partName)
         {
             PartName = partName;
         }
 
-        public string PartName;
         public abstract int LowSetsCount();
         public abstract int HighSetsCount();
         public abstract int TotalSetsCount();
@@ -18,15 +21,12 @@
         public abstract void DoLowItemReplace();
         public abstract StashItem[] GetPreparedItems();
         public abstract void RemovePreparedItems();
-
-        public int StashTabItemsCount = 0;
-        public int ItemCellsSize = 1;
     }
 
     public class PrepareItemResult
     {
         public int AllowedReplacesCount;
-        public bool LowSet;
         public bool BInPlayerInvent;
+        public bool LowSet;
     }
 }
