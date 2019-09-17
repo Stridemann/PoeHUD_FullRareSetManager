@@ -691,8 +691,11 @@ namespace FullRareSetManager
             }
 
             var needUpdateAllInfo = false;
-            _currentOpenedStashTab = null;
             _currentOpenedStashTabName = "";
+            _currentOpenedStashTab = stashPanel.VisibleStash;
+
+            if (_currentOpenedStashTab == null)
+                return false;
 
             for (var i = 0; i < stashPanel.TotalStashes; i++)
             {
@@ -711,8 +714,8 @@ namespace FullRareSetManager
                 if (visibleInventoryItems == null)
                     continue;
 
-                _currentOpenedStashTab = stash;
-                _currentOpenedStashTabName = stashName;
+                if(_currentOpenedStashTab.Address == stash.Address)
+                  _currentOpenedStashTabName = stashName;
 
                 var add = false;
 
