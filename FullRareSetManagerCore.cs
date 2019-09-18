@@ -30,10 +30,9 @@ namespace FullRareSetManager
         private StashData _sData;
         public ItemDisplayData[] DisplayData;
 
-        private void ExternalUpdateStashes(object[] args)
+        public override void ReceiveEvent(string eventId, object args)
         {
             if (!Settings.Enable.Value) return;
-            Thread.Sleep(70);
             UpdateStashes();
             UpdatePlayerInventory();
             UpdateItemsSetsInfo();
@@ -122,6 +121,9 @@ namespace FullRareSetManager
                 //item picked by player?
                 var wi = entity.GetComponent<WorldItem>();
                 var filteredItemResult = ProcessItem(wi.ItemEntity);
+
+                if (filteredItemResult == null)
+                    return;
                 filteredItemResult.BInPlayerInventory = true;
                 _sData.PlayerInventory.StashTabItems.Add(filteredItemResult);
                 UpdateItemsSetsInfo();
@@ -131,7 +133,7 @@ namespace FullRareSetManager
             _currentLabels.Remove(entity.Address);
         }
 
-        private void AreaChange(AreaController area)
+        public override void AreaChange(AreaInstance area)
         {
             _currentLabels.Clear();
             _currentAlerts.Clear();
@@ -178,7 +180,7 @@ namespace FullRareSetManager
 
             RenderLabels();
 
-            if (Input.IsKeyDown(Settings.DropToInventoryKey))
+            if (Settings.DropToInventoryKey.PressedOnce())
             {
                 if (stashIsVisible && IngameState.IngameUi.InventoryPanel.IsVisible)
                 {
@@ -250,13 +252,13 @@ namespace FullRareSetManager
                 }
 
                 Thread.Sleep(INPUT_DELAY + Settings.ExtraDelay.Value);
-                var npcOfferItems = npcTradingWindow.Children[1];
+                var npcOfferItems = npcTradingWindow.OtherOffer;
 
                 foreach (var element in npcOfferItems.Children)
                 {
                     var item = element.AsObject<NormalInventoryItem>().Item;
 
-                    if (item.Metadata == "")
+                    if (string.IsNullOrEmpty(item.Metadata))
                         continue;
 
                     var itemName = GameController.Files.BaseItemTypes.Translate(item.Metadata).BaseName;
@@ -267,13 +269,13 @@ namespace FullRareSetManager
                     LogMessage($"Trying to sell set again in {delay} ms.", 3);
                     Thread.Sleep(delay);
 
-                    SellSetToVendor(callCount++);
+                    //SellSetToVendor(callCount++);
 
                     return;
                 }
 
                 Thread.Sleep(latency + Settings.ExtraDelay);
-                var acceptButton = npcTradingWindow.Children[5];
+                var acceptButton = npcTradingWindow.AcceptButton;
                 Settings.SetsAmountStatistics++;
                 Settings.SetsAmountStatisticsText = $"Total sets sold to vendor: {Settings.SetsAmountStatistics}";
 
@@ -714,8 +716,8 @@ namespace FullRareSetManager
                 if (visibleInventoryItems == null)
                     continue;
 
-                if(_currentOpenedStashTab.Address == stash.Address)
-                  _currentOpenedStashTabName = stashName;
+                if (_currentOpenedStashTab.Address == stash.Address)
+                    _currentOpenedStashTabName = stashName;
 
                 var add = false;
 
@@ -902,7 +904,7 @@ namespace FullRareSetManager
             {
                 var value = Settings.AllowedStashTabs[i];
 
-                if (ImGui.Combo(value < realNames.Count && value >=0 ? realNames[value] : "??", ref value, realNames.ToArray(), realNames.Count))
+                if (ImGui.Combo(value < realNames.Count && value >= 0 ? realNames[value] : "??", ref value, realNames.ToArray(), realNames.Count))
                 {
                     Settings.AllowedStashTabs[i] = value;
                 }
@@ -993,7 +995,7 @@ namespace FullRareSetManager
             if (shouldUpdate)
             {
                 _currentLabels = GameController.Game.IngameState.IngameUi.ItemsOnGroundLabels
-                    .GroupBy(y => y.ItemOnGround.Address).ToDictionary(y => y.Key, y => y.First());
+                    .Where(y => y?.ItemOnGround != null).GroupBy(y => y.ItemOnGround.Address).ToDictionary(y => y.Key, y => y.First());
             }
 
             if (!Settings.InventBorders.Value)
