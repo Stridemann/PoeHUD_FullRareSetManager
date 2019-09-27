@@ -29,13 +29,26 @@ namespace FullRareSetManager
         private BaseSetPart[] _itemSetTypes;
         private StashData _sData;
         public ItemDisplayData[] DisplayData;
+        private bool _allowScanTabs = true;
 
         public override void ReceiveEvent(string eventId, object args)
         {
             if (!Settings.Enable.Value) return;
-            UpdateStashes();
-            UpdatePlayerInventory();
-            UpdateItemsSetsInfo();
+
+            if (eventId == "stashie_start_drop_items")
+            {
+                _allowScanTabs = false;
+            }
+            else if (eventId == "stashie_stop_drop_items")
+            {
+                _allowScanTabs = true;
+            }
+            else if (eventId == "stashie_finish_drop_items_to_stash_tab")
+            {
+                UpdateStashes();
+                UpdatePlayerInventory();
+                UpdateItemsSetsInfo();
+            }
         }
 
         public override bool Initialise()
@@ -143,10 +156,13 @@ namespace FullRareSetManager
         {
             if (!GameController.Game.IngameState.InGame) return;
 
+            if (!_allowScanTabs)
+                return;
+
             var needUpdate = UpdatePlayerInventory();
             var IngameState = GameController.Game.IngameState;
             var stashIsVisible = IngameState.IngameUi.StashElement.IsVisible;
-
+            
             if (stashIsVisible)
                 needUpdate = UpdateStashes() || needUpdate;
 
