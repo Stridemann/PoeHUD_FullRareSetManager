@@ -105,7 +105,7 @@
 
             if (needUpdate)
             {
-                // Thread.Sleep(100);//Wait until item be placed to player invent. There should be some delay
+                Thread.Sleep(10);       //Wait until item be placed to player invent. There should be some delay
                 UpdateItemsSetsInfo();
             }
 
@@ -183,20 +183,17 @@
 
                             for (int i = 2; i < (int)merchantContextMenu.ChildCount; ++i)
                             {
-                                string text;
                                 try
                                 {
-                                   text = merchantContextMenu.Children[i].Children[0].Text;
+                                    if (merchantContextMenu.Children[i].Children[0].Text == "Sell Items")
+                                    {
+                                        SellItemsButton = merchantContextMenu.Children[i];
+                                        break;
+                                    }
                                 }
                                 catch
                                 {
                                     continue;
-                                }
-                                
-                                if (merchantContextMenu.Children[i].Children[0].Text == "Sell Items")
-                                {
-                                    SellItemsButton = merchantContextMenu.Children[i];
-                                    break;
                                 }
                             }
                             //opening 
@@ -407,7 +404,7 @@
         private void DrawSetsInfo()
         {
             var stash = GameController.Game.IngameState.ServerData.StashPanel;
-            var leftPanelOpened = stash.IsVisible;
+            bool leftPanelOpened = stash.IsVisible;
 
             if (leftPanelOpened)
             {
@@ -419,9 +416,9 @@
                     {
                         var stashTabRect = _currentOpenedStashTab.InventoryUiElement.GetClientRect();
 
-                        var setItemsListRect = new RectangleF(stashTabRect.Right, stashTabRect.Bottom, 270, 240);
+                        var setItemsListRect = new RectangleF(stashTabRect.Right, stashTabRect.Bottom + 25, 270, 240);
                         Graphics.DrawBox(setItemsListRect, new Color(0, 0, 0, 200));
-                        Graphics.DrawFrame(setItemsListRect, 2, Color.White);
+                        Graphics.DrawFrame(setItemsListRect, 1, Color.White);
 
                         var drawPosX = setItemsListRect.X + 10;
                         var drawPosY = setItemsListRect.Y + 10;
@@ -429,7 +426,7 @@
                         Graphics.DrawText("Current " + (_currentSetData.SetType == 1 ? "Chaos" : "Regal") + " set:", 15,
                             new Vector2(drawPosX, drawPosY));
 
-                        drawPosY += 25;
+                        drawPosY += 15;
 
                         for (var i = 0; i < 8; i++)
                         {
@@ -467,7 +464,7 @@
                                 Graphics.DrawText(
                                     curPreparedItem.StashName + " (" + curPreparedItem.ItemName + ") " +
                                     (curPreparedItem.itemlvl < 75 ? "L" : "H"), 15, new Vector2(drawPosX, drawPosY), color);
-                                drawPosY += 20;
+                                drawPosY += 15;
                             }
                         }
                     }
@@ -509,7 +506,7 @@
 
             _currentSetData = new CurrentSetInfo();
             _itemSetTypes = new BaseSetPart[8];
-            _itemSetTypes[0] = new WeaponItemsSetPart("Weapons") {ItemCellsSize = 8};
+            _itemSetTypes[0] = new WeaponItemsSetPart("Weapons") {ItemCellsSize = 6};
             _itemSetTypes[1] = new SingleItemSetPart("Helmets") {ItemCellsSize = 4};
             _itemSetTypes[2] = new SingleItemSetPart("Body Armors") {ItemCellsSize = 6};
             _itemSetTypes[3] = new SingleItemSetPart("Gloves") {ItemCellsSize = 4};
@@ -518,7 +515,7 @@
             _itemSetTypes[6] = new SingleItemSetPart("Amulets") {ItemCellsSize = 1};
             _itemSetTypes[7] = new RingItemsSetPart("Rings") {ItemCellsSize = 1};
 
-            for (var i = 0; i <= 7; i++)
+            for (int i = 0; i <= 7; ++i)
             {
                 DisplayData[i].BaseData = _itemSetTypes[i];
             }
@@ -538,12 +535,7 @@
             }
 
             const int StashCellsCount = 12 * 12;
-            /*
-            if (_currentOpenedStashTab.InvType == InventoryType.QuadStash)
-            {
-                StashCellsCount = 24 * 24;
-            }
-            */
+            
             foreach (var stash in _sData.StashTabs)
             {
                 var stashTabItems = stash.Value.StashTabItems;
